@@ -25,3 +25,4 @@ Route::apiResource('products', ProductController::class);
 Route::middleware('auth')->group(function() {
 });
 Route::apiResource('carts', CartController::class);
+Route::delete('carts/user/{id}', [CartController::class, 'deleteByProduct'])->name('cart.product');

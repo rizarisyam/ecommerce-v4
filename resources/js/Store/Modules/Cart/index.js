@@ -21,6 +21,12 @@ const actions = {
             commit("UPDATE_CART_ITEMS", res.data);
         });
     },
+    deleteCartByItem({ commit }, payload) {
+        console.log(payload);
+        axios.delete(`api/carts/user/${payload.userId}?product_id=${payload.productId}`).then((res) => {
+            commit("UPDATE_CART_ITEMS", res.data);
+        });
+    },
 };
 
 const getters = {

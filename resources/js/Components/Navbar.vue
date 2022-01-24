@@ -1,6 +1,23 @@
 <template>
-    <!-- component -->
+
     <nav class="bg-white shadow">
+
+        <div class="flex justify-end" v-if="isLogin">
+           <div>
+               <Link :href="route('logout')" method="post" as="button" type="button" class="inline-flex items-center px-4 py-2 b  font-medium text-base  text-gray-600">Logout</Link>
+
+           </div>
+        </div>
+        <div class="flex justify-end" v-if="!isLogin">
+           <div>
+                <button type="button" class="inline-flex items-center px-4 py-2 border-r-black  font-medium text-base text-gray-600">
+                    Daftar
+                </button>
+                <button type="button" class="inline-flex items-center px-4 py-2 b  font-medium text-base  text-gray-600 ">
+                    Login
+                </button>
+           </div>
+        </div>
         <div class="container mx-auto px-6 py-3 md:flex md:justify-between md:items-center">
             <div class="flex justify-between items-center">
                 <div>
@@ -10,7 +27,7 @@
                     >Brand</a>
                 </div>
 
-                <!-- Mobile menu button -->
+
                 <div class="flex md:hidden">
                     <button
                         type="button"
@@ -27,7 +44,7 @@
                 </div>
             </div>
 
-            <!-- Mobile Menu open: "block", Menu closed: "hidden" -->
+
             <div class="md:flex items-center">
                 <div class="flex flex-col md:flex-row md:mx-6">
                     <a
@@ -83,18 +100,35 @@
 import { computed, onMounted } from 'vue';
 import { useStore } from 'vuex'
 import { usePage } from '@inertiajs/inertia-vue3'
+import { Link } from '@inertiajs/inertia-vue3'
+import { Inertia } from '@inertiajs/inertia';
+
+
 export default {
+    components: {
+
+        Link
+    },
     setup() {
         const store = useStore();
         const page = usePage();
-        if(!page.props.value.auth ) {
-            const userId = page.props.value.auth.user.id;
-            store.dispatch('getCartItems', userId);
-        }
-        console.log(page.props.value.auth)
-        // if(userId) {
-        //     window.location('/login')
+        // if(!page.props.value.auth.user ) {
+        //     Inertia.visit(route('login'))
         // }
+            const user = page.props.value.auth.user;
+            if(user) {
+                store.dispatch('getCartItems', user.id);
+            }
+        // console.log(page.props.value.auth)
+
+
+
+        const isLogin = computed(() => {
+            if(user) {
+                return true;
+            }
+            return false
+        })
 
 
 
@@ -102,7 +136,8 @@ export default {
 
         return {
             qtyCart: computed(() => store.getters.qtyCart),
-            countCartItems: computed(() => store.getters.countCartItems)
+            countCartItems: computed(() => store.getters.countCartItems),
+            isLogin
         }
     }
 }

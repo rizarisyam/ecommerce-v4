@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,7 @@ class CartController extends Controller
      */
     public function index(Request $request)
     {
-        // return $userId;
+        // return $request->user_id;
         $user = User::findOrFail($request->user_id);
         return $user->products()->get();
     }
@@ -99,14 +100,34 @@ class CartController extends Controller
         //
     }
 
+    public function destroy($userId)
+    {
+        $user = User::findOrFail($userId);
+        $user->products()->detach();
+        return response()->json([
+            'message' => 'Cart dengan '. $user->name . "berhasil dihapus"
+        ]);
+    }
+
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function deleteByProduct(Request $request, $id)
     {
-        //
+        // return $id;
+        // return $request->query('user_id');
+        $user = User::findOrFail($id);
+        // return $user;
+        $product = Product::findOrFail($request->query('product_id'));
+        // return $product;
+        $user->products()->detach($product);
+        return response()->json([
+            'message' => 'cart berhasil dihapus'
+        ]);
     }
+
+
 }

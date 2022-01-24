@@ -15,12 +15,12 @@
             <div class="flex flex-col justify-between ml-4 flex-grow">
                 <span class="font-bold text-sm">{{name }}</span>
                 <span class="text-red-500 text-xs">Apple</span>
-                <a href="#" class="font-semibold hover:text-red-500 text-gray-500 text-xs">Remove</a>
+                <a href="javascript:void()" class="font-semibold hover:text-red-500 text-gray-500 text-xs" @click.prevent="deleteCartByItem">Remove</a>
             </div>
         </div>
         <div class="flex items-center justify-center w-1/5">
   <div class="inline-flex shadow-md hover:shadow-lg focus:shadow-lg" role="group">
-    <button @click="decQty" :disabled="product.quantity <= 1" :class="{'bg-slate-400': product.quantity <= 1}" type="button" class="inline-block px-2 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase focus:bg-blue-700 focus:outline-none focus:ring-0 active:bg-blue-800 transition duration-150 ease-in-out">
+    <button @click="decQty" :disabled="product.quantity <= 1" :class="{'bg-red-800': product.quantity <= 1}" type="button" class="inline-block px-2 py-2.5 bg-blue-600 text-white font-medium text-xs leading-tight uppercase focus:bg-blue-700 focus:outline-none focus:ring-0 active:bg-blue-800 transition duration-150 ease-in-out">
         <svg class="fill-current" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" ><path d="M5 11h14v2H5z"></path></svg>
     </button>
    <input class="mx-2 border text-center w-12" type="text" v-model="product.quantity" />
@@ -35,6 +35,7 @@
         >{{ rupiahFormat(price) }}</span>
         <span class="text-center w-1/5 font-semibold text-sm">{{rupiahFormat(totalCartItem) }}</span>
     </div>
+    <!-- {{product}} -->
 </template>
 
 <script>
@@ -56,8 +57,19 @@ export default {
             price: props.price,
             quantity: props.quantity
         })
-
-
+ const user = page.props.value.auth.user;
+//     console.log(page.props.value.auth.user.id)
+// store.dispatch('getCartItems', user_id);
+        const deleteCartByItem = () => {
+            // console.log(product.id);
+            // alert(product.id)
+            const productData = {
+                userId: user.id,
+                productId: product.id
+            }
+            store.dispatch('deleteCartByItem', productData);
+             store.dispatch('getCartItems', user.id);
+        }
 
         const incQty = () => {
             product.quantity += 1;
@@ -93,7 +105,8 @@ export default {
             totalCartItem,
             product,
             incQty,
-            decQty
+            decQty,
+            deleteCartByItem
         }
     },
 }

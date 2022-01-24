@@ -55,8 +55,12 @@
 import { computed, refs } from 'vue';
 import { useStore } from 'vuex'
 import { usePage } from '@inertiajs/inertia-vue3'
+import Swal from 'sweetalert2'
 
 import rupiahFormat from '@/Helper/rupiahFormat';
+import { Inertia } from '@inertiajs/inertia';
+
+
 export default {
     props: ['id', 'name', 'desc', 'price'],
     setup(props) {
@@ -65,15 +69,33 @@ export default {
 
         // methods
         const addToCart = () => {
-            const user_id = page.props.value.auth.user.id;
-            const cartItem = {
-                user_id,
+            const user = page.props.value.auth.user;
+
+            if(!user) {
+               Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Anda belum login, kita redirect ke halaman login yaa',
+                }).then(res => {
+                    if(res.isConfirmed) {
+                        // route('login')
+                        Inertia.visit(route('login'))
+                    }
+                    // console.log(route('login'))
+                    console.log(res)
+                })
+                // console.log(Swal)
+            } else {
+                const cartItem = {
+                user_id: user.id,
                 product_id: props.id,
                 quantity: 1,
                 price: props.price
+                }
+                store.dispatch('addCartItem', cartItem)
+                store.dispatch('getCartItems', user.id);
             }
-            store.dispatch('addCartItem', cartItem)
-            store.dispatch('getCartItems', user_id);
+
         }
         return {
 rupiahFormat,

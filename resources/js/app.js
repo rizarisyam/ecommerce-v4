@@ -4,6 +4,9 @@ import { createApp, h } from "vue";
 import { createInertiaApp } from "@inertiajs/inertia-vue3";
 import { InertiaProgress } from "@inertiajs/progress";
 
+import VueSweetalert2 from "vue-sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+
 import store from "./Store";
 
 const appName =
@@ -16,6 +19,7 @@ createInertiaApp({
         return createApp({ render: () => h(app, props) })
             .use(plugin)
             .use(store)
+            .use(VueSweetalert2)
             .mixin({ methods: { route } })
             .mount(el);
     },

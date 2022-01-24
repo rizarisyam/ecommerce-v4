@@ -26,6 +26,9 @@
         "vue-loader": "^16.1.2"
     },
     "dependencies": {
+        "@headlessui/vue": "^1.4.3",
+        "@heroicons/vue": "^1.0.5",
+        "vue-sweetalert2": "^5.0.2",
         "vuex": "^4.0.2"
     }
 }

@@ -105,8 +105,8 @@
                 >Apply</button>
                 <div class="border-t mt-8">
                     <div class="flex font-semibold justify-between py-6 text-sm uppercase">
-                        <span>Total cost</span>
-                        <span>$600</span>
+                        <span>Sub total</span>
+                        <span>{{ rupiahFormat(totalCartItems)  }}</span>
                     </div>
                     <button
                         class="bg-indigo-500 font-semibold hover:bg-indigo-600 py-3 text-sm text-white uppercase w-full"
@@ -115,7 +115,7 @@
             </div>
         </div>
     </div>
-    {{ cartItems }}
+    {{ cartItems.map(value => value.pivot.quantity) }}
 </template>
 
 <script>
@@ -126,6 +126,7 @@ import { computed } from "vue";
 import rupiahFormat from '@/Helper/rupiahFormat'
 import Product from '@/Components/Cart/Product.vue'
 
+import {usePage} from '@inertiajs/inertia-vue3'
 export default {
     components: {
         Navbar,
@@ -133,8 +134,11 @@ export default {
     },
     setup() {
         const store = useStore();
+        const page = usePage();
 
-        store.dispatch('getCartItems');
+        const user = page.props.value.auth.user;
+
+        store.dispatch('getCartItems', user.id);
 
 
         return {
