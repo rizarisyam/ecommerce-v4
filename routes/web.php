@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ExpeditionController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -30,10 +33,15 @@ Route::get('/', [HomeController::class, 'index']);
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware('role:admin')->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
    Route::resource('/carts', CartController::class)->only(['index']);
+   Route::get('/carts/{id}/shipment/', [CartController::class, 'shipment'])->name('carts.shipment');
 });
+
+Route::resource('/categories', CategoryController::class)->only(['index', 'store']);
+Route::resource('/products', ProductController::class)->only(['index', 'store']);
+Route::resource('/expeditions', ExpeditionController::class)->only(['index','store']);
 
 require __DIR__.'/auth.php';

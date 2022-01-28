@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
@@ -14,7 +17,11 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+
+        $categories = CategoryResource::collection(Category::all());
+        return Inertia::render('Category/Index', [
+            'categories' => $categories
+        ]);
     }
 
     /**
@@ -35,7 +42,24 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $files = $request->file('fileUpload');
+
+        // return json_encode($files);
+        $path_push = [];
+
+        foreach($files as $file) {
+            $path = $file->store('fileUpload', 'public');
+            array_push($path_push, $path);
+        }
+        // $path = $files[0]->store('fileUpload');
+
+        $category = Category::create([
+            'name' => $request->name,
+            'desc' => $request->desc,
+            'image_path' => json_encode($path_push)
+        ]);
+
+        return Redirect::route('categories.index');
     }
 
     /**

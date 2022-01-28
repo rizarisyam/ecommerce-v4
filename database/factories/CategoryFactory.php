@@ -15,7 +15,8 @@ class CategoryFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'desc' => $this->faker->paragraph()
+            'desc' => $this->faker->paragraph(),
+            'image_path' => $this->faker->imageUrl(640, 480, 'animals', true)
         ];
     }
 }

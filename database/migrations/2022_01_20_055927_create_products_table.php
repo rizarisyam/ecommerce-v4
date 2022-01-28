@@ -20,6 +20,7 @@ class CreateProductsTable extends Migration
             $table->text('SKU')->nullable();
             $table->decimal('price');
             $table->decimal('discount')->default(0);
+            $table->text('image_path')->nullable();
             $table->foreignId('category_id')->constrained('categories')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });

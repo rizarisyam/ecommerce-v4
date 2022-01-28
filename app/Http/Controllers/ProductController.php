@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Inertia\Inertia;
 
 class ProductController extends Controller
 {
@@ -14,7 +16,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('Product/Index');
     }
 
     /**
@@ -35,7 +37,26 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $files = $request->file('fileUpload');
+
+        $path_push = [];
+
+        foreach($files as $file) {
+            $path = $file->store('fileUpload', 'public');
+            array_push($path_push, $path);
+        }
+
+        Product::create([
+            'name' => $request->name,
+            'desc' => $request->desc,
+            'price' => $request->price,
+            'discount' => $request->discount,
+            'SKU' => $request->SKU,
+            'category_id' => $request->category_id,
+            'image_path' => json_encode($path_push)
+        ]);
+
+        return Redirect::route('products.index');
     }
 
     /**

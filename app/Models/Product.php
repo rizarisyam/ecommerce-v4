@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
+    protected $guarded = [];
 
     public function category() {
         return $this->belongsTo(Category::class);
@@ -15,5 +16,10 @@ class Product extends Model
 
     public function users() {
         return $this->belongsToMany(User::class, 'carts')->withPivot('quantity', 'price')->withTimestamps();;
+    }
+
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class)->withPivot(['quantity', 'price'])->withTimestamps();
     }
 }

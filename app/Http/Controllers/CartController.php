@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -82,4 +84,11 @@ class CartController extends Controller
     {
         //
     }
+
+    public function shipment($id)
+    {
+        return Order::find($id);
+    }
+
+
 }

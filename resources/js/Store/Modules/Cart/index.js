@@ -2,11 +2,15 @@ import axios from "axios";
 
 const state = {
     cartItems: [],
+    selectedItems: [],
 };
 
 const mutations = {
     UPDATE_CART_ITEMS(state, paylaod) {
         state.cartItems = paylaod;
+    },
+    UPDATE_SELECTED_ITEMS(state, payload) {
+        state.selectedItems = payload;
     },
 };
 
@@ -23,9 +27,29 @@ const actions = {
     },
     deleteCartByItem({ commit }, payload) {
         console.log(payload);
-        axios.delete(`api/carts/user/${payload.userId}?product_id=${payload.productId}`).then((res) => {
-            commit("UPDATE_CART_ITEMS", res.data);
-        });
+        axios
+            .delete(
+                `api/carts/user/${payload.userId}?product_id=${payload.productId}`
+            )
+            .then((res) => {
+                commit("UPDATE_CART_ITEMS", res.data);
+            });
+    },
+
+    // selected items
+    getSelectedItems(context, payload) {
+        // console.log(context);
+        // console.log(payload);
+        context.commit("UPDATE_SELECTED_ITEMS", payload);
+    },
+
+    removeSelectedItems(context, payload) {
+        context.commit("UPDATE_SELECTED_ITEMS", payload);
+        // context.state.selectedItems.filter((value) => value.id !== payload.id);
+    },
+
+    removeAllSelectedItems(context, payload) {
+        context.commit("UPDATE_SELECTED_ITEMS", payload);
     },
 };
 
@@ -46,6 +70,17 @@ const getters = {
             return acc + item.pivot.quantity * item.pivot.price;
         }, 0);
     },
+    selectedItems: (state) => {
+        return state.selectedItems;
+    },
+    totalSelectedItems: (state) => {
+        return state.selectedItems.reduce((acc, item) => {
+            return acc + item.pivot.quantity * item.pivot.price;
+        }, 0);
+    },
+    // subTotalSelectedItems: (state) => {
+    //     return state.selectedItems.reduce(())
+    // }
 };
 
 const cartModule = {

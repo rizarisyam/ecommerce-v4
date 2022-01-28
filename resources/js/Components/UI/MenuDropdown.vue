@@ -5,7 +5,7 @@
         <MenuButton
           class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-black rounded-md bg-opacity-20 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
         >
-          Options
+         test
           <ChevronDownIcon
             class="w-5 h-5 ml-2 -mr-1 text-violet-200 hover:text-violet-100"
             aria-hidden="true"
@@ -116,6 +116,8 @@
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 import { ChevronDownIcon } from '@heroicons/vue/solid'
 import { ref } from '@vue/reactivity'
+import Avatar from 'primevue/avatar';
+import {usePage} from '@inertiajs/inertia-vue3'
 // import ArchiveIcon from './archive-icon.vue'
 // import DuplicateIcon from './duplicate-icon.vue'
 // import MoveIcon from './move-icon.vue'
@@ -129,6 +131,7 @@ export default {
     MenuItems,
     MenuItem,
     ChevronDownIcon,
+    Avatar
     // ArchiveIcon,
     // DuplicateIcon,
     // MoveIcon,
@@ -137,8 +140,9 @@ export default {
   },
   setup() {
     const active = ref(true)
+    const page = usePage();
 
-    return {active}
+    return {active, page}
   }
 }
 </script>

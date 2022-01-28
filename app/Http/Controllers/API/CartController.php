@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
@@ -126,6 +126,39 @@ class CartController extends Controller
         $user->products()->detach($product);
         return response()->json([
             'message' => 'cart berhasil dihapus'
+        ]);
+    }
+
+    function invoiceNumber() {
+        $latest = Order::latest()->first();
+        if (! $latest) {
+            return "F-" . date("ymd") . str_pad(1, 3, "0", STR_PAD_LEFT);
+        }
+
+        $string = preg_replace("/[^0-9\.]/", '', $latest->invoice_number);
+
+        return 'F-' . sprintf('%04d', $string+1);
+
+    }
+
+    public function checkout(Request $request) {
+
+            $order = Order::create([
+                'user_id' => $request->user_id,
+                'invoice_number' => $this->invoiceNumber(),
+                'expedition_id' => $request->expedition_id
+            ]);
+
+
+        $product = Product::findMany($request->product_id);
+
+        $checkout = $order->products()->attach($product, [
+            'quantity' => $request->quantity,
+            'price' => $request->price
+        ]);
+
+        return response()->json([
+            'data' => $checkout
         ]);
     }
 

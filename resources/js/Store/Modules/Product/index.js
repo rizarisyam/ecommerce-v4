@@ -12,9 +12,13 @@ const mutations = {
 
 const actions = {
     getProductItems({ commit }) {
-        axios.get("/api/products").then((res) => {
-            commit("UPDATE_PRODUCT_ITEMS", res.data);
-        });
+        axios
+            .get(route("api.products.index"))
+            .then((res) => {
+                console.log(res);
+                commit("UPDATE_PRODUCT_ITEMS", res.data);
+            })
+            .catch((err) => console.log(err));
     },
 };
 
