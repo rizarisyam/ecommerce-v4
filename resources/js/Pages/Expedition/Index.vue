@@ -56,9 +56,7 @@
 
 <script>
 import Layout from '@/Pages/Dashboard.vue'
-import "ag-grid-community/dist/styles/ag-grid.css";
-import "ag-grid-community/dist/styles/ag-theme-alpine.css";
-import { AgGridVue } from "ag-grid-vue3";
+
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Card from 'primevue/card';
@@ -82,7 +80,7 @@ export default {
     props: {
 
     },
-    components: { AgGridVue, DataTable, Column, Card, Button, Panel, Dialog, Form, Image, ConfirmDialog, Toast, FormEdit },
+    components: { DataTable, Column, Card, Button, Panel, Dialog, Form, Image, ConfirmDialog, Toast, FormEdit },
     setup(props) {
 
         const store = useStore();

@@ -37,9 +37,10 @@ Route::get('/dashboard', function () {
 
 Route::middleware(['auth'])->group(function () {
    Route::resource('/carts', CartController::class)->only(['index']);
-   Route::get('/carts/{id}/shipment/', [CartController::class, 'shipment'])->name('carts.shipment');
+
 });
 
+Route::get('/carts/{id}/shipment/', [CartController::class, 'shipment'])->name('carts.shipment');
 Route::resource('/categories', CategoryController::class)->only(['index', 'store']);
 Route::resource('/products', ProductController::class)->only(['index', 'store']);
 Route::resource('/expeditions', ExpeditionController::class)->only(['index','store']);

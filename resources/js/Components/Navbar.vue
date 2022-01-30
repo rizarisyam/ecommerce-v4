@@ -72,26 +72,20 @@
                                 class="z-10 origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
                             >
                                 <MenuItem v-slot="{ active }">
-                                    <a
-                                        href="#"
+                                    <Link
+                                        :href="route('logout')"
+                                        class="w-full flex"
                                         :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']"
-                                    >Your Profile</a>
+                                        method="post"
+                                        as="button"
+                                        type="button"
+                                    >My Account</Link>
                                 </MenuItem>
-                                <MenuItem v-slot="{ active }">
-                                    <a
-                                        href="#"
-                                        :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']"
-                                    >Settings</a>
-                                </MenuItem>
-                                <MenuItem v-slot="{ active }">
-                                    <a
-                                        href="#"
-                                        :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']"
-                                    >Sign out</a>
-                                </MenuItem>
+
                                 <MenuItem v-slot="{ active }">
                                     <Link
                                         :href="route('logout')"
+                                        class="w-full flex"
                                         :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']"
                                         method="post"
                                         as="button"

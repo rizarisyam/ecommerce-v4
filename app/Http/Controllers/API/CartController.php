@@ -146,7 +146,6 @@ class CartController extends Controller
             $order = Order::create([
                 'user_id' => $request->user_id,
                 'invoice_number' => $this->invoiceNumber(),
-                'expedition_id' => $request->expedition_id
             ]);
 
 
@@ -157,9 +156,7 @@ class CartController extends Controller
             'price' => $request->price
         ]);
 
-        return response()->json([
-            'data' => $checkout
-        ]);
+        return redirect()->route('carts.shipment');
     }
 
 

@@ -1,8 +1,10 @@
 import axios from "axios";
+axios.defaults.timeout = 10000;
 
 const state = {
     cartItems: [],
     selectedItems: [],
+    loading: true,
 };
 
 const mutations = {
@@ -15,15 +17,26 @@ const mutations = {
 };
 
 const actions = {
-    getCartItems({ commit }, payload) {
-        axios.get(`/api/carts?user_id=${payload}`).then((res) => {
-            commit("UPDATE_CART_ITEMS", res.data);
-        });
+    getCartItems({ commit, state }, payload) {
+        axios
+            .get(`/api/carts?user_id=${payload}`, { timeout: 10000 })
+            .then((res) => {
+                state.loading = false;
+                commit("UPDATE_CART_ITEMS", res.data);
+            });
     },
     addCartItem({ commit }, paylaod) {
         axios.post("/api/carts", paylaod).then((res) => {
             commit("UPDATE_CART_ITEMS", res.data);
         });
+    },
+    checkout({ commit }, payload) {
+        axios
+            .post("/api/carts/checkout", payload)
+            .then((res) => {
+                console.log(res);
+            })
+            .catch((err) => console.log(err));
     },
     deleteCartByItem({ commit }, payload) {
         console.log(payload);
@@ -73,10 +86,18 @@ const getters = {
     selectedItems: (state) => {
         return state.selectedItems;
     },
+
+    countSelectedItems: (state) => {
+        return state.selectedItems.length;
+    },
+
     totalSelectedItems: (state) => {
         return state.selectedItems.reduce((acc, item) => {
             return acc + item.pivot.quantity * item.pivot.price;
         }, 0);
+    },
+    loading: (state) => {
+        return state.loading;
     },
     // subTotalSelectedItems: (state) => {
     //     return state.selectedItems.reduce(())

@@ -91,13 +91,12 @@
     </div>
     <Footer />
 
-    <Toast position="center" />
+    <Toast position="top right" />
 </template>
 
 
 <script>
 import { Head, Link } from '@inertiajs/inertia-vue3';
-import Product from '@/Components/Product/Item.vue';
 import Navbar from '@/Components/Navbar.vue';
 import Footer from '@/Components/Footer.vue';
 import CtaSection from '@/Components/CtaSection.vue';
@@ -119,7 +118,6 @@ export default {
     components: {
         Head,
         Link,
-        Product,
         Navbar,
         Panel,
         Button,

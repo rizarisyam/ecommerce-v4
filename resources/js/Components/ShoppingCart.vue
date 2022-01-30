@@ -1,10 +1,11 @@
 <template>
     <navbar />
 
-    <div
-        class="mt-20 max-w-full h-screen sm:px-6 lg:px-8 my-5 flex gap-4 justify-between bg-gray-50 border-4 py-5"
-    >
-        <div class="flex-1">
+    <div class="mt-20 max-w-4xl px-4 mx-32 sm:px-6 lg:px-8">
+        <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
+        <div class="max-w-full">
+            <!-- Content goes here -->
+            <h5 class="text-xl mx-4 font-semibold">Keranjang</h5>
             <DataTable
                 :value="cartItems"
                 v-model:selection="selectedProduct"
@@ -16,10 +17,17 @@
                 @row-select="rowSelect"
                 @row-unselect="rowUnselect"
             >
+                <!-- <template #header>
+                    <div class="flex justify-content-center align-items-center">
+                        <h5 class="text-xl">Keranjang</h5>
+                    </div>
+                </template>-->
                 <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
                 <Column field="name" header="Product"></Column>
                 <Column field="pivot.price" header="Unit Price">
-                    <template #body="slotProps">{{ rupiahFormat(slotProps.data.pivot.price) }}</template>
+                    <template #body="slotProps">
+                        <span v-if="!loading">{{ rupiahFormat(slotProps.data.pivot.price) }}</span>
+                    </template>
                 </Column>
                 <Column field="pivot.quantity" header="Quantity">
                     <template #body="slotProps">
@@ -82,149 +90,34 @@
                 </Column>
             </DataTable>
         </div>
-
-        <div>
-            <Card class="max-w-md">
-                <template #title>Order Summary</template>
-                <template #content>
-                    <div v-for="item in selectedItems" :key="item.id" class="h-32 my-5">
-                        <div
-                            class="h-10 lg:h-auto lg:w-48 flex-none bg-cover rounded-md text-center overflow-hidden"
-                            style="background-image: url('https://images.unsplash.com/photo-1572635196237-14b3f281503f?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&q=80')"
-                            title="Woman holding a mug"
-                        ></div>
-                        <div class="rounded-md p-4 flex flex-col justify-between leading-normal">
-                            <div class="mb-8">
-                                <div class="text-gray-900 font-bold text-xl mb-2">{{ item.name }}</div>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="text-sm flex justify-center items-center">
-                                    <p
-                                        class="text-gray-900 font-semibold leading-none"
-                                    >{{ rupiahFormat(item.pivot.price) }}</p>
-                                    <span class="text-gray-500">
-                                        <svg
-                                            class="w-4 fill-current"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="24"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                d="m16.192 6.344-4.243 4.242-4.242-4.242-1.414 1.414L10.535 12l-4.242 4.242 1.414 1.414 4.242-4.242 4.243 4.242 1.414-1.414L13.364 12l4.242-4.242z"
-                                            />
-                                        </svg>
-                                    </span>
-                                    <p
-                                        class="text-gray-900 font-semibold leading-none"
-                                    >{{ item.pivot.quantity }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <Divider />
-
-                    <div class="flex justify-end">
-                        <div class="flex justify-end gap-4 w-full">
-                            <span>Total Harga:</span>
-                            <span>{{ rupiahFormat(totalSelectedItems) }}</span>
-                        </div>
-                    </div>
-                </template>
-            </Card>
-        </div>
-        <!-- {{ selectedItems }}
-        {{ totalSelectedItems }}-->
     </div>
-    <!-- <div class="container mx-auto mt-10">
-        <div class="flex shadow-md my-10">
-            <div class="w-3/4 bg-white px-10 py-10">
-                <div class="flex justify-between border-b pb-8">
-                    <h1 class="font-semibold text-2xl">Shopping Cart</h1>
-                    <h2 class="font-semibold text-2xl">{{ countCartItems }} Items</h2>
+
+    <div class="w-96 fixed top-20 right-36 shadow-lg border-2">
+        <div class="max-w-sm rounded overflow-hidden">
+            <div class="px-6 py-4">
+                <div class="font-bold text-lg mb-2">Ringkasan Belanja</div>
+                <div class="flex justify-between my-4">
+                    <p class="text-gray-700 text-base">Total harga ({{ countSelectedItems }} barang)</p>
+                    <span>{{ rupiahFormat(totalSelectedItems) }}</span>
                 </div>
-                <div class="flex mt-10 mb-5">
-                    <h3 class="font-semibold text-gray-600 text-xs uppercase w-2/5">Product Details</h3>
-                    <h3
-                        class="font-semibold text-gray-600 text-xs uppercase w-1/5 text-center"
-                    >Quantity</h3>
-                    <h3
-                        class="font-semibold text-gray-600 text-xs uppercase w-1/5 text-center"
-                    >Price</h3>
-                    <h3
-                        class="font-semibold text-gray-600 text-xs uppercase w-1/5 text-center"
-                    >Total</h3>
-                </div>
-
-
-                <product
-                    v-for="item in cartItems"
-                    :key="item.id"
-                    :id="item.id"
-                    :name="item.name"
-                    :price="item.price"
-                    :quantity="item.pivot.quantity"
-                />
-
-                <a href="#" class="flex font-semibold text-indigo-600 text-sm mt-10">
-                    <svg class="fill-current mr-2 text-indigo-600 w-4" viewBox="0 0 448 512">
-                        <path
-                            d="M134.059 296H436c6.627 0 12-5.373 12-12v-56c0-6.627-5.373-12-12-12H134.059v-46.059c0-21.382-25.851-32.09-40.971-16.971L7.029 239.029c-9.373 9.373-9.373 24.569 0 33.941l86.059 86.059c15.119 15.119 40.971 4.411 40.971-16.971V296z"
-                        />
-                    </svg>
-                    Continue Shopping
-                </a>
             </div>
 
-            <div id="summary" class="w-1/4 px-8 py-10">
-                <h1 class="font-semibold text-2xl border-b pb-8">Order Summary</h1>
-                <div class="flex justify-between mt-10 mb-5">
-                    <span class="font-semibold text-sm uppercase">Items {{ countCartItems }}</span>
-                    <span class="font-semibold text-sm">{{ rupiahFormat(totalCartItems) ?? "590$" }}</span>
-                </div>
-                <div>
-                    <label class="font-medium inline-block mb-3 text-sm uppercase">Alamat</label>
-                    <Editor v-model="value" editorStyle="height: 320px" />
-                </div>
-                <div>
-                    <label class="font-medium inline-block mb-3 text-sm uppercase">Shipping</label>
-                    <select class="block p-2 text-gray-600 w-full text-sm">
-                        <option
-                            v-for="exp in expeditionItems"
-                            :key="exp.id"
-                            :value="exp.id"
-                        >{{ exp.name }}</option>
-                    </select>
-                </div>
-                <div class="py-10">
-                    <label
-                        for="promo"
-                        class="font-semibold inline-block mb-3 text-sm uppercase"
-                    >Promo Code</label>
-                    <input
-                        type="text"
-                        id="promo"
-                        placeholder="Enter your code"
-                        class="p-2 text-sm w-full"
-                    />
-                </div>
-                <button
-                    class="bg-red-500 hover:bg-red-600 px-5 py-2 text-sm text-white uppercase"
-                >Apply</button>
-                <div class="border-t mt-8">
-                    <div class="flex font-semibold justify-between py-6 text-sm uppercase">
-                        <span>Sub total</span>
-                        <span>{{ rupiahFormat(totalCartItems) }}</span>
-                    </div>
-                    <button
-                        class="bg-indigo-500 font-semibold hover:bg-indigo-600 py-3 text-sm text-white uppercase w-full"
-                    >Checkout</button>
-                </div>
+            <div class="border-2 w-80 mx-auto"></div>
+
+            <div class="px-6 py-2 flex justify-between my-4">
+                <p class="text-black text-lg font-bold">Total harga</p>
+                <span>{{ rupiahFormat(totalSelectedItems) }}</span>
+            </div>
+
+            <div class="px-2 py-4">
+                <Button
+                    @click="submitCheckout"
+                    :label="`beli (${countSelectedItems})`"
+                    class="p-button-label w-full text-2xl font-bold"
+                />
             </div>
         </div>
-    </div>-->
-    <!-- {{ cartItems.map(value => value.pivot.quantity) }} -->
+    </div>
 </template>
 
 <script>
@@ -245,6 +138,10 @@ import Card from 'primevue/card';
 import InputNumber from 'primevue/inputnumber';
 import Dropdown from 'primevue/dropdown';
 import Divider from 'primevue/divider';
+import Button from 'primevue/button';
+import axios from "axios";
+import { Inertia } from '@inertiajs/inertia';
+import Skeleton from 'primevue/skeleton';
 
 
 
@@ -258,22 +155,29 @@ export default {
         Card,
         InputNumber,
         Dropdown,
-        Divider
+        Divider,
+        Button,
+        Skeleton
     },
     setup() {
         const store = useStore();
         const page = usePage();
 
         const selectedProduct = ref([]);
-
+        // const loading = computed(() => store.getters.loading)
+        const loading = ref(true);
         const user = page.props.value.auth.user;
 
         const fetchCartItems = () => {
+
             store.dispatch('getCartItems', user.id);
+
         }
 
         const fetchExpedition = () => {
+
             store.dispatch("getExpeditionItems");
+
         }
 
         const fetchUserAddress = () => {
@@ -296,8 +200,9 @@ export default {
             store.dispatch("getSelectedItems", event.data);
         }
 
-        const rowUnselectAll = (event) => {
-            store.dispatch("removeAllSelectedItems", event.data);
+        const rowUnselectAll = () => {
+
+            store.dispatch("removeAllSelectedItems", []);
         }
 
         const incQty = (payload) => {
@@ -343,6 +248,29 @@ export default {
             return payload.pivot.price * payload.pivot.quantity;
         }
 
+        const submitCheckout = () => {
+            const productId = [];
+            for (let i in selectedProduct.value) {
+                console.log(selectedProduct.value[i].id)
+                const data = {
+                    user_id: user.id,
+                    product_id: selectedProduct.value[i].id,
+                    quantity: selectedProduct.value[i].pivot.quantity,
+                    price: selectedProduct.value[i].pivot.price,
+                };
+
+                console.log(data);
+                axios.post("api/carts/checkout", data)
+                    .then(res => {
+                        console.log(res)
+                    })
+                    .catch(err => console.log(err))
+                Inertia.visit(route('carts.shipment', user.id))
+                // productId.push()
+            }
+
+        }
+
 
 
         // lifecycle
@@ -353,6 +281,7 @@ export default {
         })
 
         return {
+            loading,
             rupiahFormat,
             cartItems: computed(() => store.getters.cartItems),
             countCartItems: computed(() => store.getters.countCartItems),
@@ -370,10 +299,16 @@ export default {
             deleteItemFromCart,
             totalPrice,
             userAddress: computed(() => store.getters.userAddress),
+            countSelectedItems: computed(() => store.getters.countSelectedItems),
+            submitCheckout
         }
     },
 }
 </script>
 
 <style scoped>
+.p-button-label {
+    font-size: 1.3rem;
+    text-transform: capitalize;
+}
 </style>

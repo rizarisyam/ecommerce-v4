@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -87,7 +88,9 @@ class CartController extends Controller
 
     public function shipment($id)
     {
-        return Order::find($id);
+
+        $order = Order::where('user_id', $id)->get();
+        return OrderResource::collection($order);
     }
 
 

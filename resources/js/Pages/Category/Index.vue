@@ -1,63 +1,82 @@
 <template>
     <div class="w-full h-full">
-<Panel header="Manage Category" :toggleable="true">
-	<Button label="Add Category" @click="openModalCreate"/>
+        <Panel header="Manage Category" :toggleable="true">
+            <Button label="Add Category" @click="openModalCreate" />
 
+            <DataTable
+                :value="rowData"
+                :paginator="true"
+                :rows="10"
+                paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+                :rowsPerPageOptions="[10, 20, 50]"
+                responsiveLayout="scroll"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+            >
+                <Column field="id" header="ID"></Column>
+                <Column field="image_path" header="Images">
+                    <template #body="slotProps">
+                        <!-- {{slotProps.data.image_path}} -->
+                        <!-- {{JSON.parse(slotProps.data.image_path)}} -->
+                        <div class="flex">
+                            <!-- {{true}} -->
+                            <img :src="slotProps.data.image_path" />
+                            <!-- <Image
+                                imageClass="w-24 object-cover rounded"
+                                v-for="img in JSON.parse(slotProps.data.image_path)"
+                                :key="img"
+                                :src="showImage() + img"
+                                alt="Image Text"
+                            />-->
+                        </div>
+                        <!-- <div v-else>N/A</div> -->
+                        <!-- <img v-for="slotProps.data.image_path in img" :key="img" /> -->
+                    </template>
+                </Column>
+                <Column field="name" header="Name"></Column>
+                <Column field="desc" header="Category"></Column>
+                <Column header="Actions" field="id">
+                    <template #body="slotProps">
+                        <div class="p-buttonset flex">
+                            <Button label="Show" @click="openModalShow" icon="pi pi-check" />
+                            <Button
+                                label="Edit"
+                                @click="openModalEdit(slotProps.data.id)"
+                                icon="pi pi-times"
+                            />
+                            <Button
+                                label="Delete"
+                                @click="confirmDeleteData(slotProps.data.id)"
+                                icon="pi pi-trash"
+                            />
+                        </div>
+                    </template>
+                </Column>
 
-                 <DataTable :value="rowData" :paginator="true" :rows="10"
-            paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-            :rowsPerPageOptions="[10,20,50]" responsiveLayout="scroll"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords}">
-            <Column field="id" header="ID"></Column>
-            <Column field="image_path" header="Images">
-            <template #body="slotProps">
-            <!-- {{slotProps.data.image_path}} -->
-            <!-- {{JSON.parse(slotProps.data.image_path)}} -->
-            <div v-if="Array.isArray(JSON.parse(slotProps.data.image_path))" class="flex">
-                <!-- {{true}} -->
-                <!-- <img v-for="img in JSON.parse(slotProps.data.image_path)" :key="img" :src="showImage() + img" /> -->
-                <Image imageClass="w-24 object-cover rounded" v-for="img in JSON.parse(slotProps.data.image_path)" :key="img" :src="showImage() + img" alt="Image Text" />
-            </div>
-            <div v-else>N/A</div>
-            <!-- <img v-for="slotProps.data.image_path in img" :key="img" /> -->
-            </template>
-            </Column>
-            <Column field="name" header="Name"></Column>
-            <Column field="desc" header="Category"></Column>
-            <Column header="Actions" field="id">
-                <template #body="slotProps">
-                <div class="p-buttonset flex">
-            <Button label="Show" @click="openModalShow" icon="pi pi-check" />
-            <Button label="Edit" @click="openModalEdit(slotProps.data.id)" icon="pi pi-times" />
-            <Button label="Delete" @click="confirmDeleteData(slotProps.data.id)" icon="pi pi-trash" />
-                    </div>
-                </template>
-            </Column>
-
-            <!-- <Dialog header="Category" v-model:visible="display" :breakpoints="{'960px': '75vw', '640px': '100vw'}" :style="{width: '50vw'}">
+                <!-- <Dialog header="Category" v-model:visible="display" :breakpoints="{'960px': '75vw', '640px': '100vw'}" :style="{width: '50vw'}">
                 <Form v-if="mode.create" @closeModal="display = false" />
                 <form-edit v-if="mode.edit" :rowDataEdit="rowDataEdit" />
-            </Dialog> -->
-        </DataTable>
+                </Dialog>-->
+            </DataTable>
+        </Panel>
+        <Dialog
+            header="Category"
+            v-model:visible="display"
+            :breakpoints="{ '960px': '75vw', '640px': '100vw' }"
+            :style="{ width: '50vw' }"
+        >
+            <Form v-if="mode.create" @closeModal="display = false" />
+            <form-edit v-if="mode.edit" :row-data-edit="rowDataEdit" />
+        </Dialog>
 
+        <ConfirmDialog></ConfirmDialog>
 
-</Panel>
-<Dialog header="Category" v-model:visible="display" :breakpoints="{'960px': '75vw', '640px': '100vw'}" :style="{width: '50vw'}">
-    <Form v-if="mode.create" @closeModal="display = false" />
-    <form-edit v-if="mode.edit" :row-data-edit="rowDataEdit" />
-</Dialog>
-
-<ConfirmDialog></ConfirmDialog>
-
-<Toast />
+        <Toast />
     </div>
 </template>
 
 <script>
 import Layout from '@/Pages/Dashboard.vue'
-import "ag-grid-community/dist/styles/ag-grid.css";
-import "ag-grid-community/dist/styles/ag-theme-alpine.css";
-import { AgGridVue } from "ag-grid-vue3";
+
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Card from 'primevue/card';
@@ -75,13 +94,13 @@ import FormEdit from '@/Components/Category/FormEdit.vue'
 
 import { computed, onBeforeMount, reactive, ref } from 'vue';
 import axios from 'axios';
-import {useStore} from 'vuex'
+import { useStore } from 'vuex'
 export default {
     layout: Layout,
     props: {
 
     },
-    components: {AgGridVue,DataTable,Column,Card,Button,Panel,Dialog,Form,Image,ConfirmDialog,Toast,FormEdit },
+    components: { DataTable, Column, Card, Button, Panel, Dialog, Form, Image, ConfirmDialog, Toast, FormEdit },
     setup(props) {
 
         const store = useStore();
@@ -94,7 +113,7 @@ export default {
             edit: false,
             show: false
         });
-            const display = ref(false);
+        const display = ref(false);
         const confirm = useConfirm();
         const toast = useToast();
 
@@ -130,7 +149,7 @@ export default {
                     deleteCategory(id)
                 },
                 reject: () => {
-                    toast.add({severity:'error', summary:'Rejected', detail:'You have rejected', life: 3000});
+                    toast.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
                 }
             });
         }
@@ -142,9 +161,9 @@ export default {
         const deleteCategory = async (id) => {
             try {
                 const response = await axios.delete(`api/categories/${id}`);
-                if(response) {
+                if (response) {
                     fetchData()
-toast.add({severity:'info', summary:'Confirmed', detail:'Record deleted', life: 3000});
+                    toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 3000 });
                 }
             } catch (error) {
                 console.log(error)
@@ -160,16 +179,16 @@ toast.add({severity:'info', summary:'Confirmed', detail:'Record deleted', life: 
 
 
         return {
-display,
+            display,
 
-      rowData: computed(() => store.getters.categoryItems),
-      showImage,
-      mode,
-      openModalCreate,
-      openModalShow,
-      confirmDeleteData,
-      openModalEdit,
-      rowDataEdit
+            rowData: computed(() => store.getters.categoryItems),
+            showImage,
+            mode,
+            openModalCreate,
+            openModalShow,
+            confirmDeleteData,
+            openModalEdit,
+            rowDataEdit
         }
     },
 }
@@ -177,6 +196,6 @@ display,
 
 <style scoped>
 .p-float-label {
-    color: black
+    color: black;
 }
 </style>
