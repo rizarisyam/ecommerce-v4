@@ -90,9 +90,10 @@ jobs:
       - name: Compile Assets
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
-        run: npm install
-        run: npm run prod
+          node-version: "16"
+        run: |
+          npm install
+          npm run prod
       - name: Deployment
         uses: appleboy/ssh-action@master
         with:
@@ -101,4 +102,3 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           script: |
             cd /var/www/ecommerce-app-v4/
-
