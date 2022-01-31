@@ -190,7 +190,7 @@ jobs:
   run-before-hooks:
     name: "${{ matrix.server.name }}: Before hook"
     runs-on: ubuntu-latest
-    needs: [ create-deployment-artifacts, prepare-release-on-servers ]
+    needs: [create-deployment-artifacts, prepare-release-on-servers]
     strategy:
       matrix:
         server: ${{ fromJson(needs.create-deployment-artifacts.outputs.deployment-matrix) }}
@@ -208,6 +208,6 @@ jobs:
           username: ${{ matrix.server.username }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ matrix.server.port }}
-          envs: envs: GITHUB_SHA,RELEASE_PATH,ACTIVE_RELEASE_PATH,STORAGE_PATH,BASE_PATH
+          envs: GITHUB_SHA,RELEASE_PATH,ACTIVE_RELEASE_PATH,STORAGE_PATH,BASE_PATH
           script: |
             ${{ matrix.server.beforeHooks }}
