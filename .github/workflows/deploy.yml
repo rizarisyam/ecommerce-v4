@@ -88,13 +88,12 @@ jobs:
       - name: Directory Permissions
         run: chmod -R 777 storage bootstrap/cache
       - name: Compile Assets
-        uses: actions/checkout@v2
         uses: actions/setup-node@v2
-          with:
-            node-version: '16'
+        with:
+          node-version: '16'
         run: npm install
         run: npm run prod
-       name: Deployment
+      - name: Deployment
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
