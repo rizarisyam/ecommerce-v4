@@ -51,3 +51,4 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           script: |
             cd /var/www/ecommerce-app-v4/
+            git pull origin main
