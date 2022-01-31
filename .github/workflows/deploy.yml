@@ -131,4 +131,6 @@ jobs:
         run: |
           composer install --no-dev --no-interaction --prefer-dist
       - name: Create deployment artifact
-        run: tar -czf app.tar.gz *
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: tar -czf "${GITHUB_SHA}".tar.gz --exclude=*.git --exclude=node_modules *
