@@ -96,7 +96,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           username: ${{ secrets.SSH_USERNAME }}
           script: |
-            cd /var/www/html/
+            cd /var/www/html/ecommerce-app-v4/
             git fetch
             get reset --hard HEAD
             git checkout -f main
