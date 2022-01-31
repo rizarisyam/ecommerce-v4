@@ -95,5 +95,5 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           script: |
             cd /var/www/ecommerce-app-v4/
-            npm install
-            npm run prod
+            sudo npm install
+            sudo npm run prod
