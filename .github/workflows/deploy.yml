@@ -44,17 +44,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Deployment
-        uses: appleboy/scp-action@master
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          target: "/var/www/html"
-        # uses: appleboy/ssh-action@master
-        # with:
-        #   host: ${{ secrets.SSH_HOST }}
-        #   key: ${{ secrets.SSH_PRIVATE_KEY }}
-        #   username: ${{ secrets.SSH_USERNAME }}
-        #   script: |
-        #     cd /var/www/ecommerce-app-v4/
-        #     git pull origin main
+          username: ${{ secrets.SSH_USERNAME }}
+          script: |
+            cd /var/www/html/
+            git checkout -f
+            git pull
