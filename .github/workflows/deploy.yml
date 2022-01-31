@@ -130,3 +130,5 @@ jobs:
       - name: Composer install
         run: |
           composer install --no-dev --no-interaction --prefer-dist
+      - name: Create deployment artifact
+        run: tar -czf app.tar.gz *
