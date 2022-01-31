@@ -50,4 +50,11 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           username: ${{ secrets.SSH_USERNAME }}
           script: |
-            cd /var/www/html/ecommerce-app-v4/
+            cd /var/www/ecommerce-app-v4/
+            git fetch
+            get reset --hard HEAD
+            git checkout -f main
+            git pull
+            composer install --no-dev --optimize-autoloader
+            php artisan optimize
+            php artisan queue:restart
