@@ -15,16 +15,13 @@ add('writable_dirs', []);
 
 host('128.199.224.71')
     ->set('remote_user', 'riza')
-    ->set('hostname', 'demo-monicaair.cels.co.id')
-    ->set('deploy_path', 'var/www/ecommerce-v4');
+    ->set('deploy_path', '~/var/www/ecommerce-v4');
 
 // Tasks
 
 task('build', function () {
     cd('{{release_path}}');
     run('npm run build');
-    run('npm install');
-    run('npm run prod');
 });
 
 after('deploy:failed', 'deploy:unlock');
