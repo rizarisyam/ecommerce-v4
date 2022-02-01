@@ -4,7 +4,7 @@
         "ip": "128.199.224.71",
         "username": "riza",
         "port": "22",
-        "beforeHooks": "",
+        "beforeHooks": "php artisan migrate:fresh --seed",
         "afterHooks": "",
         "path": "/var/www/html"
     }
