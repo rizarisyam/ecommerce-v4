@@ -28,7 +28,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware('auth')->group(function() {
 });
 Route::name('api.')->group(function() {
-    Route::apiResource('carts', CartController::class)->middleware('auth');
+    Route::apiResource('carts', CartController::class);
     Route::post('/carts/checkout', [CartController::class, 'checkout'])->name('carts.checkout');
     Route::apiResource('products', ProductController::class);
     Route::apiResource('categories', CategoryController::class);

@@ -37,7 +37,11 @@
                 <Column header="Actions" field="id">
                     <template #body="slotProps">
                         <div class="p-buttonset flex">
-                            <Button label="Show" @click="openModalShow" icon="pi pi-check" />
+                            <Button
+                                label="Show"
+                                @click="openModalShow(slotProps.data.id)"
+                                icon="pi pi-check"
+                            />
                             <Button
                                 label="Edit"
                                 @click="openModalEdit(slotProps.data.id)"
@@ -66,6 +70,10 @@
         >
             <Form v-if="mode.create" @closeModal="display = false" />
             <form-edit v-if="mode.edit" :row-data-edit="rowDataEdit" />
+            <show v-if="mode.show" :category="rowDataShow" />
+            <!-- <div v-if="mode.show">
+                <p>{{ rowDataShow }}</p>
+            </div>-->
         </Dialog>
 
         <ConfirmDialog></ConfirmDialog>
@@ -91,6 +99,7 @@ import Toast from 'primevue/toast';
 
 import Form from '@/Components/Category/Form.vue'
 import FormEdit from '@/Components/Category/FormEdit.vue'
+import Show from '@/Components/Category/Show.vue'
 
 import { computed, onBeforeMount, reactive, ref } from 'vue';
 import axios from 'axios';
@@ -100,13 +109,14 @@ export default {
     props: {
 
     },
-    components: { DataTable, Column, Card, Button, Panel, Dialog, Form, Image, ConfirmDialog, Toast, FormEdit },
+    components: { DataTable, Column, Card, Button, Panel, Dialog, Form, Image, ConfirmDialog, Toast, FormEdit, Show },
     setup(props) {
 
         const store = useStore();
 
 
         const rowDataEdit = ref([]);
+        const rowDataShow = ref(null);
 
         const mode = reactive({
             create: false,
@@ -122,10 +132,16 @@ export default {
             mode.create = true;
         }
 
-        const openModalShow = () => {
+        const openModalShow = (id) => {
             display.value = !display.value;
             mode.show = true;
             mode.create = false;
+            mode.edit = false;
+
+            store.dispatch("getCategoryById", id);
+            rowDataShow.value = computed(() => {
+                return store.getters.categoryItems;
+            })
         }
 
         const openModalEdit = (id) => {
@@ -188,7 +204,8 @@ export default {
             openModalShow,
             confirmDeleteData,
             openModalEdit,
-            rowDataEdit
+            rowDataEdit,
+            rowDataShow
         }
     },
 }
