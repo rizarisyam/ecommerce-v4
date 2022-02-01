@@ -19,14 +19,14 @@
                         <!-- {{JSON.parse(slotProps.data.image_path)}} -->
                         <div class="flex">
                             <!-- {{true}} -->
-                            <img :src="slotProps.data.image_path" />
-                            <!-- <Image
+                            <!-- <img :src="slotProps.data.image_path" /> -->
+                            <Image
                                 imageClass="w-24 object-cover rounded"
                                 v-for="img in JSON.parse(slotProps.data.image_path)"
                                 :key="img"
                                 :src="showImage() + img"
                                 alt="Image Text"
-                            />-->
+                            />
                         </div>
                         <!-- <div v-else>N/A</div> -->
                         <!-- <img v-for="slotProps.data.image_path in img" :key="img" /> -->
