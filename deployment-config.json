@@ -6,6 +6,6 @@
         "port": "22",
         "beforeHooks": "",
         "afterHooks": "",
-        "path": "/var/www/html/"
+        "path": "/var/www/html"
     }
 ]
