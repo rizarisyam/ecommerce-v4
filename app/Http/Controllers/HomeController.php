@@ -9,10 +9,8 @@ use Inertia\Inertia;
 class HomeController extends Controller
 {
     public function index() {
-        $products = Product::all();
+        // $products = Product::all();
 
-        return Inertia::render('Welcome', [
-            'products' => $products
-        ]);
+        return Inertia::render('Welcome');
     }
 }

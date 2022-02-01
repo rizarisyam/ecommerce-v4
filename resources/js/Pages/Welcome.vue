@@ -134,7 +134,7 @@ export default {
         // laravelVersion: String,
         // phpVersion: String,
 
-        products: Object
+        // products: Object
 
     },
     setup(props) {
