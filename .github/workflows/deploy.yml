@@ -186,7 +186,7 @@ jobs:
 
             mkdir -p ${{ matrix.server.path }}/storage/{app,public,framework,logs}
             mkdir -p ${{ matrix.server.path }}/storage/framework/{cache,sessions,testing,views}
-            chmod -R 0777 ${{ matrix.server.path }}/storage
+
   run-before-hooks:
     name: "${{ matrix.server.name }}: Before hook"
     runs-on: ubuntu-latest
