@@ -2,11 +2,15 @@ import axios from "axios";
 
 const state = {
     categoryItems: [],
+    categoryItem: {},
 };
 
 const mutations = {
     UPDATE_CATEGORY_ITEMS(state, payload) {
         state.categoryItems = payload;
+    },
+    UPDATE_CATEGORY_ITEM(state, payload) {
+        state.categoryItem = payload;
     },
 };
 
@@ -25,7 +29,7 @@ const actions = {
             .get(route("api.categories.show", payload))
             .then((res) => {
                 console.log("getCategoryById", res);
-                context.commit("UPDATE_CATEGORY_ITEMS", res.data);
+                context.commit("UPDATE_CATEGORY_ITEM", res.data);
             })
             .catch((err) => console.log(err));
     },
@@ -34,6 +38,9 @@ const actions = {
 const getters = {
     categoryItems: (state) => {
         return state.categoryItems;
+    },
+    categoryItem: (state) => {
+        return state.categoryItem;
     },
 };
 

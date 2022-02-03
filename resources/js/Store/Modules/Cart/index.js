@@ -5,6 +5,7 @@ const state = {
     cartItems: [],
     selectedItems: [],
     loading: true,
+    shipment: [],
 };
 
 const mutations = {
@@ -13,6 +14,9 @@ const mutations = {
     },
     UPDATE_SELECTED_ITEMS(state, payload) {
         state.selectedItems = payload;
+    },
+    UPDATE_SHIPMENT_ITEMS(state, payload) {
+        state.shipment = payload;
     },
 };
 
@@ -64,6 +68,16 @@ const actions = {
     removeAllSelectedItems(context, payload) {
         context.commit("UPDATE_SELECTED_ITEMS", payload);
     },
+
+    getShipmentItems(context, payload) {
+        axios
+            .get(`/api/carts/shipment?user_id=${payload.user_id}`)
+            .then((res) => {
+                console.log(res);
+                context.commit("UPDATE_SHIPMENT_ITEMS", res.data);
+            })
+            .catch((err) => console.log(err));
+    },
 };
 
 const getters = {
@@ -99,9 +113,13 @@ const getters = {
     loading: (state) => {
         return state.loading;
     },
+
+    shipmentItems: (state) => state.shipment,
     // subTotalSelectedItems: (state) => {
     //     return state.selectedItems.reduce(())
     // }
+
+    countShipment: (state) => state.shipment.length,
 };
 
 const cartModule = {

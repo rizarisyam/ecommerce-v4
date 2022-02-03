@@ -40,8 +40,8 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
-Route::get('/carts/{id}/shipment/', [CartController::class, 'shipment'])->name('carts.shipment');
-Route::resource('/categories', CategoryController::class)->only(['index', 'store']);
+Route::get('/carts/shipment/', [CartController::class, 'shipment'])->name('carts.shipment');
+Route::resource('/categories', CategoryController::class);
 Route::resource('/products', ProductController::class)->only(['index', 'store']);
 Route::resource('/expeditions', ExpeditionController::class)->only(['index','store']);
 

@@ -31,7 +31,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Category/Create');
     }
 
     /**
@@ -68,9 +68,13 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function show(Category $category)
+    public function show($id)
     {
-        //
+        $category = Category::findOrFail($id);
+
+        return Inertia::render("Category/Show", [
+            'category' => $category
+        ]);
     }
 
     /**
@@ -79,9 +83,13 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function edit(Category $category)
+    public function edit($id)
     {
-        //
+        $category = Category::findOrFail($id);
+
+        return Inertia::render('Category/Edit', [
+            'category' => $category
+        ]);
     }
 
     /**
@@ -91,9 +99,33 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Category $category)
+    public function update(Request $request, $id)
     {
-        //
+        $category = Category::findOrFail($id);
+
+        if($request->hasFile('fileUpload')) {
+            $files = $request->file('fileUpload');
+            $path_push = [];
+            foreach($files as $file) {
+                $path = $file->store('fileUpload', 'public');
+                array_push($path_push, $path);
+            }
+            $imagePath =  $path_push;
+        } else {
+            $imagePath = json_decode($category->image_path);
+        }
+
+        $data = $category->update([
+            'name' => $request->name,
+            'desc' => $request->desc,
+            'image_path' => json_encode($imagePath)
+        ]);
+
+        if($data) {
+            return Redirect::route('categories.index');
+        }
+
+
     }
 
     /**

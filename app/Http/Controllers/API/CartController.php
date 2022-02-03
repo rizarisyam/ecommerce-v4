@@ -3,13 +3,17 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\OrderResource;
+use App\Http\Resources\ProductResource;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 
 class CartController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      *
@@ -45,25 +49,24 @@ class CartController extends Controller
 
         // return $product;
 
-            if($product) {
-                $quantity = $product->pivot->quantity;
+        if ($product) {
+            $quantity = $product->pivot->quantity;
 
-                $user->products()->updateExistingPivot($request->product_id, [
-                    'quantity' => $request->quantity,
-                ]);
-            } else {
-               $user->products()->attach($request->product_id, [
-                    'quantity' => $request->quantity,
-                    'price' => $request->price
-                ]);
-            }
+            $user->products()->updateExistingPivot($request->product_id, [
+                'quantity' => $request->quantity,
+            ]);
+        } else {
+            $user->products()->attach($request->product_id, [
+                'quantity' => $request->quantity,
+                'price' => $request->price
+            ]);
+        }
 
 
 
         return response()->json([
             'message' => 'success'
         ]);
-
     }
 
     /**
@@ -105,7 +108,7 @@ class CartController extends Controller
         $user = User::findOrFail($userId);
         $user->products()->detach();
         return response()->json([
-            'message' => 'Cart dengan '. $user->name . "berhasil dihapus"
+            'message' => 'Cart dengan ' . $user->name . "berhasil dihapus"
         ]);
     }
 
@@ -129,24 +132,25 @@ class CartController extends Controller
         ]);
     }
 
-    function invoiceNumber() {
+    function invoiceNumber()
+    {
         $latest = Order::latest()->first();
-        if (! $latest) {
+        if (!$latest) {
             return "F-" . date("ymd") . str_pad(1, 3, "0", STR_PAD_LEFT);
         }
 
         $string = preg_replace("/[^0-9\.]/", '', $latest->invoice_number);
 
-        return 'F-' . sprintf('%04d', $string+1);
-
+        return 'F-' . sprintf('%04d', $string + 1);
     }
 
-    public function checkout(Request $request) {
+    public function checkout(Request $request)
+    {
 
-            $order = Order::create([
-                'user_id' => $request->user_id,
-                'invoice_number' => $this->invoiceNumber(),
-            ]);
+        $order = Order::create([
+            'user_id' => $request->user_id,
+            'invoice_number' => $this->invoiceNumber(),
+        ]);
 
 
         $product = Product::findMany($request->product_id);
@@ -156,8 +160,12 @@ class CartController extends Controller
             'price' => $request->price
         ]);
 
-        return redirect()->route('carts.shipment');
+        return Redirect::route('carts.shipment', $request->user_id);
     }
 
-
+    public function shipment(Request $request)
+    {
+        $query = $request->query('user_id');
+        return OrderResource::collection(Order::where('user_id', $query)->get());
+    }
 }

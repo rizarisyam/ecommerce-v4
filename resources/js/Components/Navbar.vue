@@ -1,7 +1,7 @@
 <!-- This example requires Tailwind CSS v2.0+ -->
 <template>
     <Disclosure as="nav" class="bg-white shadow" v-slot="{ open }">
-        <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 fixed top-0 z-20 bg-white">
+        <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 fixed top-0 z-20 bg-white border-b-2">
             <div class="flex justify-between items-center h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
@@ -19,7 +19,7 @@
                 </div>
 
                 <div class="flex-1">
-                    <div class="mt-1 relative rounded-md shadow-sm">
+                    <div v-if="!isCheckout" class="mt-1 relative rounded-md shadow-sm">
                         <input
                             type="text"
                             id
@@ -212,6 +212,9 @@ export default {
         ShoppingCartIcon,
         SearchIcon,
         Badge
+    },
+    props: {
+        isCheckout: Boolean
     },
     setup() {
         const open = ref(false)

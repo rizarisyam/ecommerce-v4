@@ -86,12 +86,9 @@ class CartController extends Controller
         //
     }
 
-    public function shipment($id)
+    public function shipment()
     {
 
-        $order = Order::where('user_id', $id)->get();
-        return OrderResource::collection($order);
+        return Inertia::render('Cart/Shipment');
     }
-
-
 }

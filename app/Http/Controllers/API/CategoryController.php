@@ -38,6 +38,7 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        // return $request->all();
         $files = $request->file('fileUpload');
 
         // return json_encode($files);
@@ -57,7 +58,8 @@ class CategoryController extends Controller
             'image_path' => json_encode($path_push)
         ]);
 
-        return Redirect::route('categories.index');
+        // return Redirect::route('categories.index');
+        return $category;
     }
 
     /**
@@ -93,7 +95,24 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $files = $request->file('fileUpload');
+
+        // return json_encode($files);
+        $path_push = [];
+
+        if($request->hasFile('fileUpload')) {
+            foreach($files as $file) {
+                $path = $file->store('fileUpload', 'public');
+                array_push($path_push, $path);
+            }
+        }
+        // $path = $files[0]->store('fileUpload');
+        $category = Category::findOrFail($id);
+        $category->update([
+            'name' => $request->name,
+            'desc' => $request->desc,
+            'image_path' => json_encode($path_push)
+        ]);
     }
 
     /**

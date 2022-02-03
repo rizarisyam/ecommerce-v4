@@ -1,7 +1,10 @@
 <template>
     <div class="w-full h-full">
         <Panel header="Manage Category" :toggleable="true">
-            <Button label="Add Category" @click="openModalCreate" />
+            <Button>
+                <Link :href="route('categories.create')">Create Category</Link>
+            </Button>
+            <!-- <Button label="Add Category" @click="openModalCreate" /> -->
 
             <DataTable
                 :value="rowData"
@@ -20,13 +23,13 @@
                         <div class="flex">
                             <!-- {{true}} -->
                             <!-- <img :src="slotProps.data.image_path" /> -->
-                            <Image
+                            <!-- <Image
                                 imageClass="w-24 object-cover rounded"
                                 v-for="img in JSON.parse(slotProps.data.image_path)"
                                 :key="img"
                                 :src="showImage() + img"
                                 alt="Image Text"
-                            />
+                            />-->
                         </div>
                         <!-- <div v-else>N/A</div> -->
                         <!-- <img v-for="slotProps.data.image_path in img" :key="img" /> -->
@@ -37,16 +40,17 @@
                 <Column header="Actions" field="id">
                     <template #body="slotProps">
                         <div class="p-buttonset flex">
-                            <Button
+                            <!-- <Button
                                 label="Show"
                                 @click="openModalShow(slotProps.data.id)"
                                 icon="pi pi-check"
-                            />
-                            <Button
-                                label="Edit"
-                                @click="openModalEdit(slotProps.data.id)"
-                                icon="pi pi-times"
-                            />
+                            />-->
+                            <Button icon="pi pi-check">
+                                <Link :href="route('categories.show', slotProps.data.id)">Show</Link>
+                            </Button>
+                            <Button icon="pi pi-times">
+                                <Link :href="route('categories.edit', slotProps.data.id)">Edit</Link>
+                            </Button>
                             <Button
                                 label="Delete"
                                 @click="confirmDeleteData(slotProps.data.id)"
@@ -97,6 +101,8 @@ import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import Toast from 'primevue/toast';
 
+import { Link } from '@inertiajs/inertia-vue3'
+
 import Form from '@/Components/Category/Form.vue'
 import FormEdit from '@/Components/Category/FormEdit.vue'
 import Show from '@/Components/Category/Show.vue'
@@ -109,13 +115,13 @@ export default {
     props: {
 
     },
-    components: { DataTable, Column, Card, Button, Panel, Dialog, Form, Image, ConfirmDialog, Toast, FormEdit, Show },
+    components: { DataTable, Column, Card, Button, Panel, Dialog, Form, Image, ConfirmDialog, Toast, FormEdit, Show, Link },
     setup(props) {
 
         const store = useStore();
 
 
-        const rowDataEdit = ref([]);
+        const rowDataEdit = ref({});
         const rowDataShow = ref(null);
 
         const mode = reactive({
@@ -149,7 +155,7 @@ export default {
             mode.edit = true;
             store.dispatch("getCategoryById", id);
             // store.dispatch('getCategoryById', id);
-            rowDataEdit.value = computed(() => store.getters.categoryItems)
+            rowDataEdit.value = computed(() => store.getters.categoryItem)
         }
         const showImage = () => {
             return "/storage/";

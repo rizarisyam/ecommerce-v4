@@ -1,34 +1,26 @@
 <template>
-<form class="" @submit.prevent="submitCategory" enctype="multipart/form-data">
+    <form class @submit.prevent="submitCategory" enctype="multipart/form-data">
         <div class="mx-auto my-5">
-            <h5>Name</h5>
-        <span class="p-float-label">
-            <InputText class="w-full" id="name" type="text" v-model="category.name" />
             <label for="name">Name</label>
-        </span>
+            <InputText class="p-inputtext-sm w-full" id="name" type="text" v-model="category.name" />
         </div>
 
         <div class="mx-auto my-5">
             <h5>Description</h5>
-             <Editor v-model="category.desc" editorStyle="height: 100px"/>
+            <Editor v-model="category.desc" editorStyle="height: 100px" />
         </div>
         <div class="mx-auto my-5">
-            <h5>Description</h5>
-             <FileUpload name="demo[]" :auto="true" :customUpload="true" @uploader="myUploader" >
-<template #empty>
-        <p>Drag and drop files to here to upload.</p>
-    </template>
-             </FileUpload>
+            <h5>Images</h5>
+            <FileUpload :auto="true" :customUpload="true" @uploader="myUploader">
+                <template #empty>
+                    <p>Drag and drop files to here to upload.</p>
+                </template>
+            </FileUpload>
         </div>
 
-<div class="mx-auto my-5">
+        <div class="mx-auto my-5">
             <Button type="submit" label="Submit" />
         </div>
-
-
-
-
-
     </form>
 </template>
 
@@ -38,15 +30,20 @@ import Editor from 'primevue/editor';
 import FileUpload from 'primevue/fileupload';
 import Button from 'primevue/button';
 
-import {useForm} from '@inertiajs/inertia-vue3'
+import { useForm } from '@inertiajs/inertia-vue3'
 import axios from 'axios';
-import {reactive} from 'vue'
+import { reactive } from 'vue'
+
+import { useStore } from 'vuex';
+import { Inertia } from '@inertiajs/inertia';
 
 export default {
     components: {
-InputText,Editor,FileUpload,Button
+        InputText, Editor, FileUpload, Button
     },
     setup(props, context) {
+
+        const store = useStore();
 
         const category = useForm({
             name: null,
@@ -54,7 +51,7 @@ InputText,Editor,FileUpload,Button
             fileUpload: []
         })
 
-        //  const category = reactive({
+        // const category = reactive({
         //     name: null,
         //     desc: null,
         //     fileUpload: []
@@ -65,6 +62,10 @@ InputText,Editor,FileUpload,Button
             // console.log(event);
         }
 
+        const fetchDataCategories = () => {
+            store.dispatch("getCategoryItems");
+        }
+
         const submitCategory = () => {
             const formData = new FormData();
 
@@ -72,14 +73,18 @@ InputText,Editor,FileUpload,Button
             formData.append('name', category.name);
             formData.append('desc', category.desc);
 
-        //     axios.post('/api/categories', formData, {
-        //         headers: {
-        //   "Content-Type": "multipart/form-data"
-        // }
-        //     }).then(res => console.log(res)).catch(err => console.log(err))
-            category.post(route('categories.store'), formData)
+            //     axios.post('/api/categories', formData, {
+            //         headers: {
+            //   "Content-Type": "multipart/form-data"
+            // }
+            //     }).then(res => console.log(res)).catch(err => console.log(err))
+            // Inertia.post(route('api.categories.store'), formData)
+            category.post(route('categories.store'))
+            // Inertia.visit(route('categories.index'))
+            // fetchDataCategories()
 
-            context.emit('closeModal');
+
+            // context.emit('closeModal');
         }
 
         return {
@@ -89,4 +94,10 @@ InputText,Editor,FileUpload,Button
         }
     },
 }
-</script>s
+</script>
+
+<style scoped>
+.p-inputtext {
+    padding: 10px;
+}
+</style>

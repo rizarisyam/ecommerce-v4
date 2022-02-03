@@ -265,7 +265,7 @@ export default {
                         console.log(res)
                     })
                     .catch(err => console.log(err))
-                Inertia.visit(route('carts.shipment', user.id))
+                // Inertia.visit(route('carts.shipment', user.id))
                 // productId.push()
             }
 

@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -39,8 +40,9 @@ class AuthenticatedSessionController extends Controller
 
         // $token = $request->user()->createToken('auth_token');
         // $token->plainTextToken;
+        // $request->session()->put('user', 'riza');
 
-        if($request->user()->hasRole('admin')) {
+        if ($request->user()->hasRole('admin')) {
             return redirect()->route('dashboard');
         }
 
