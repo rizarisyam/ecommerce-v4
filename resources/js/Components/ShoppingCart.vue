@@ -260,12 +260,17 @@ export default {
                 };
 
                 console.log(data);
-                axios.post("api/carts/checkout", data)
+                axios.post("/api/carts/checkout", data)
                     .then(res => {
                         console.log(res)
+                        Inertia.visit(route('carts.shipment', {
+                            _query: {
+                                user_id: user.id
+                            }
+                        }))
                     })
                     .catch(err => console.log(err))
-                // Inertia.visit(route('carts.shipment', user.id))
+
                 // productId.push()
             }
 
