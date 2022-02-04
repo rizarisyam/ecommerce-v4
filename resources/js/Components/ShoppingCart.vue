@@ -249,30 +249,48 @@ export default {
         }
 
         const submitCheckout = () => {
-            const productId = [];
-            for (let i in selectedProduct.value) {
-                console.log(selectedProduct.value[i].id)
-                const data = {
-                    user_id: user.id,
-                    product_id: selectedProduct.value[i].id,
-                    quantity: selectedProduct.value[i].pivot.quantity,
-                    price: selectedProduct.value[i].pivot.price,
-                };
-
-                console.log(data);
-                axios.post("/api/carts/checkout", data)
-                    .then(res => {
-                        console.log(res)
-                        Inertia.visit(route('carts.shipment', {
-                            _query: {
-                                user_id: user.id
-                            }
-                        }))
-                    })
-                    .catch(err => console.log(err))
-
-                // productId.push()
+            const data = {
+                products: selectedProduct.value,
+                user_id: user.id
             }
+            axios.post("/api/carts/checkout", data)
+                .then(res => {
+                    console.log(res)
+                    Inertia.visit(route('carts.shipment', {
+                        _query: {
+                            user_id: user.id
+                        }
+                    }))
+                })
+                .catch(err => console.log(err))
+            // const productId = [];
+            // selectedProduct.value.map((value) => {
+            //     productId.push(value.id);
+            // })
+            // for (let i in selectedProduct.value) {
+            //     console.log(selectedProduct.value[i].id)
+            //     const data = {
+            //         user_id: user.id,
+            //         product_id: selectedProduct.value[i].id,
+            //         quantity: selectedProduct.value[i].pivot.quantity,
+            //         price: selectedProduct.value[i].pivot.price,
+            //     };
+
+            //     console.log(data);
+
+
+            //     // productId.push()
+            // }
+            // axios.post("/api/carts/checkout", data)
+            //     .then(res => {
+            //         console.log(res)
+            //         Inertia.visit(route('carts.shipment', {
+            //             _query: {
+            //                 user_id: user.id
+            //             }
+            //         }))
+            //     })
+            //     .catch(err => console.log(err))
 
         }
 

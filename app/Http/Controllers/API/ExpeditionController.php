@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ExpeditionResource;
 use App\Models\Expedition;
 use Illuminate\Http\Request;
+use Nette\Schema\Expect;
 
 class ExpeditionController extends Controller
 {
@@ -37,7 +38,11 @@ class ExpeditionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $expedition = Expedition::create([
+            'name' => $request->name
+        ]);
+
+        return new ExpeditionResource($expedition);
     }
 
     /**
@@ -48,7 +53,8 @@ class ExpeditionController extends Controller
      */
     public function show($id)
     {
-        //
+        $expedition = Expedition::findOrFail($id);
+        return new ExpeditionResource($expedition);
     }
 
     /**
@@ -71,7 +77,12 @@ class ExpeditionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $expedition = Expedition::findOrFail($id);
+        $expedition->update([
+            'name' => $request->name
+        ]);
+
+        // return new ExpeditionResource($updated);
     }
 
     /**
@@ -82,6 +93,7 @@ class ExpeditionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $expedition = Expedition::findOrFail($id);
+        $expedition->delete();
     }
 }

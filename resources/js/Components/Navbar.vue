@@ -73,10 +73,10 @@
                             >
                                 <MenuItem v-slot="{ active }">
                                     <Link
-                                        :href="route('logout')"
+                                        :href="route('account.index')"
                                         class="w-full flex"
                                         :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']"
-                                        method="post"
+                                        method="get"
                                         as="button"
                                         type="button"
                                     >My Account</Link>

@@ -1,6 +1,7 @@
+
 <template>
     <div class="w-full h-full">
-        <Panel header="Manage Category" :toggleable="true">
+        <Panel :toggleable="true">
             <Button label="Add Category" @click="openModalCreate" />
 
             <DataTable
@@ -17,10 +18,10 @@
                 <Column header="Actions" field="id">
                     <template #body="slotProps">
                         <div class="p-buttonset flex">
-                            <Button label="Show" @click="openModalShow" icon="pi pi-check" />
+                            <Button label="Show" icon="pi pi-check" />
                             <Button
                                 label="Edit"
-                                @click="openModalEdit(slotProps.data.id)"
+                                @click="editModal(slotProps.data.id)"
                                 icon="pi pi-times"
                             />
                             <Button
@@ -31,21 +32,33 @@
                         </div>
                     </template>
                 </Column>
-
-                <!-- <Dialog header="Category" v-model:visible="display" :breakpoints="{'960px': '75vw', '640px': '100vw'}" :style="{width: '50vw'}">
-                <Form v-if="mode.create" @closeModal="display = false" />
-                <form-edit v-if="mode.edit" :rowDataEdit="rowDataEdit" />
-                </Dialog>-->
             </DataTable>
         </Panel>
         <Dialog
-            header="Category"
+            :header="editMode ? 'Expedition Edit' : 'Create Expedition'"
             v-model:visible="display"
             :breakpoints="{ '960px': '75vw', '640px': '100vw' }"
             :style="{ width: '50vw' }"
+            @hide="closeModal"
         >
-            <Form v-if="mode.create" @closeModal="display = false" />
-            <form-edit v-if="mode.edit" :row-data-edit="rowDataEdit" />
+            <form class @submit.prevent="editMode ? updateExpedition() : createExpedition()">
+                <div class="mx-auto my-5">
+                    <label for="name">Name</label>
+                    <InputText
+                        class="p-inputtext-sm w-full"
+                        id="name"
+                        type="text"
+                        v-model="expedition.name"
+                    />
+                </div>
+
+                <div class="mx-auto my-5">
+                    <Button v-if="!editMode" type="submit" label="Submit" />
+                    <Button v-if="editMode" type="submit" label="Update" />
+                </div>
+            </form>
+            <!-- <Form v-if="mode.create" @closeModal="display = false" />
+            <form-edit v-if="mode.edit" :row-data-edit="rowDataEdit" />-->
         </Dialog>
 
         <ConfirmDialog></ConfirmDialog>
@@ -64,6 +77,7 @@ import Button from 'primevue/button'
 import Panel from 'primevue/panel';
 import Dialog from 'primevue/dialog';
 import Image from 'primevue/image';
+import InputText from 'primevue/inputtext';
 import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
@@ -72,7 +86,9 @@ import Toast from 'primevue/toast';
 import Form from '@/Components/Category/Form.vue'
 import FormEdit from '@/Components/Category/FormEdit.vue'
 
-import { computed, onBeforeMount, reactive, ref } from 'vue';
+import { computed, onBeforeMount, ref } from 'vue';
+
+
 import axios from 'axios';
 import { useStore } from 'vuex'
 export default {
@@ -80,41 +96,72 @@ export default {
     props: {
 
     },
-    components: { DataTable, Column, Card, Button, Panel, Dialog, Form, Image, ConfirmDialog, Toast, FormEdit },
+    components: { DataTable, Column, Card, Button, Panel, Dialog, Form, Image, ConfirmDialog, Toast, FormEdit, InputText },
     setup(props) {
 
         const store = useStore();
 
+        const editMode = ref(false);
 
-        const rowDataEdit = ref([]);
+        const expedition = ref({
+            name: null
+        })
 
-        const mode = reactive({
-            create: false,
-            edit: false,
-            show: false
-        });
         const display = ref(false);
         const confirm = useConfirm();
         const toast = useToast();
 
         const openModalCreate = () => {
             display.value = !display.value;
-            mode.create = true;
+            expedition.value = {}
         }
 
-        const openModalShow = () => {
-            display.value = !display.value;
-            mode.show = true;
-            mode.create = false;
+        const editModal = (payload) => {
+            editMode.value = true;
+            display.value = true;
+            axios.get(`/api/expeditions/${payload}`).then(res => {
+                console.log(res)
+                expedition.value = { ...res.data }
+            }).catch(err => {
+                console.log(err)
+            })
         }
 
-        const openModalEdit = (id) => {
-            display.value = !display.value;
-            mode.edit = true;
-            store.dispatch("getCategoryById", id);
-            // store.dispatch('getCategoryById', id);
-            rowDataEdit.value = computed(() => store.getters.categoryItems)
+        const updateExpedition = () => {
+            const data = {
+                name: expedition.value.name
+            }
+            axios.put(`/api/expeditions/${expedition.value.id}`, data)
+                .then(res => {
+                    console.log(res)
+                    fetchData()
+                    display.value = false
+                    editMode.value = false;
+                })
+                .catch(err => {
+                    console.log(err)
+                })
         }
+
+        const closeModal = () => {
+            editMode.value = false;
+        }
+
+        const createExpedition = () => {
+            const data = {
+                name: expedition.value.name
+            }
+            axios.post('/api/expeditions', data)
+                .then(res => {
+                    console.log(res)
+                    display.value = false;
+                    fetchData()
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+        }
+
         const showImage = () => {
             return "/storage/";
         }
@@ -126,7 +173,7 @@ export default {
                 icon: 'pi pi-info-circle',
                 acceptClass: 'p-button-danger',
                 accept: () => {
-                    deleteCategory(id)
+                    deleteExpedition(id)
                 },
                 reject: () => {
                     toast.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
@@ -138,12 +185,13 @@ export default {
             store.dispatch('getExpeditionItems');
         }
 
-        const deleteCategory = async (id) => {
+        const deleteExpedition = async (id) => {
             try {
-                const response = await axios.delete(`api/categories/${id}`);
+                const response = await axios.delete(`/api/expeditions/${id}`);
+                console.log(response)
                 if (response) {
                     fetchData()
-                    toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 3000 });
+
                 }
             } catch (error) {
                 console.log(error)
@@ -160,15 +208,16 @@ export default {
 
         return {
             display,
-
+            closeModal,
+            editModal,
+            expedition,
             rowData: computed(() => store.getters.expeditionItems),
             showImage,
-            mode,
+            editMode,
             openModalCreate,
-            openModalShow,
             confirmDeleteData,
-            openModalEdit,
-            rowDataEdit
+            updateExpedition,
+            createExpedition
         }
     },
 }

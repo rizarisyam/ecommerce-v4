@@ -49,10 +49,23 @@
                             :key="product.id"
                             class="flex justify-between"
                         >
-                            <div class="flex-1">{{ product.name }}</div>
-                            <div class="flex-1">{{ rupiahFormat(product.pivot.price) }}</div>
-                            <div class="flex-1">{{ product.pivot.quantity }}</div>
-                            <div class="flex-1">{{ product.pivot.price * product.pivot.quantity }}</div>
+                            <div class="flex-1 flex gap-4 items-center">
+                                <Image
+                                    image-class="w-20 object-cover"
+                                    src="https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1025&q=80"
+                                    alt="Image"
+                                    width="250"
+                                    preview
+                                />
+                                <h4>{{ product.name }}</h4>
+                            </div>
+                            <div
+                                class="flex-1 flex items-center"
+                            >{{ rupiahFormat(product.pivot.price) }}</div>
+                            <div class="flex-1 flex items-center">{{ product.pivot.quantity }}</div>
+                            <div
+                                class="flex-1 flex items-center"
+                            >{{ product.pivot.price * product.pivot.quantity }}</div>
                         </section>
                     </section>
 
@@ -60,13 +73,13 @@
                         <label
                             for="location"
                             class="block text-sm font-medium text-gray-700"
-                        >Location</label>
+                        >Expedisi</label>
                         <select
                             id="location"
                             name="location"
                             class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                            v-model="expeditionId"
                         >
-                            <option selected>Pilih Ekspedisi</option>
                             <option
                                 v-for="item in expeditions"
                                 :key="item.id"
@@ -80,6 +93,9 @@
                         <span
                             class="text-lg font-semibold"
                         >Total pesanan({{ countShipment }}) : {{ rupiahFormat(subTotal(order)) }}</span>
+                    </div>
+                    <div class="flex justify-end mt-4">
+                        <Button @click="updateShipment" label="Pesan" class="w-80" />
                     </div>
                 </template>
             </Card>
@@ -97,13 +113,16 @@ import rupiahFormat from "@/Helper/rupiahFormat";
 
 import Navbar from "@/Components/Navbar.vue"
 import Card from 'primevue/card';
+import Button from 'primevue/button';
+import axios from 'axios';
 
 export default {
     name: "Shipment",
     components: {
         Navbar,
         Card,
-        Image
+        Image,
+        Button
     },
     setup(props) {
         // const order = ref(props.order);
@@ -111,9 +130,20 @@ export default {
         const store = useStore();
 
         const user = page.props.value.auth.user;
+        const expeditionId = ref();
 
         const fetchDataOrder = () => {
             store.dispatch('getShipmentItems', { user_id: user.id });
+        }
+
+        const updateShipment = () => {
+            const data = {
+                user_id: user.id,
+                expedition_id: expeditionId.value
+            }
+            axios.put(`/api/carts/shipment`, data)
+                .then(res => console.log(res))
+                .catch(err => console.log(err))
         }
 
         const fetchDatExpedition = () => {
@@ -145,13 +175,14 @@ export default {
             subTotal,
             rupiahFormat,
             expeditions,
+            expeditionId,
+            updateShipment,
             countShipment: computed(() => store.getters.countShipment)
         }
     }
 }
 </script>
 
-<style>
-</style>scripjs
+
 
 

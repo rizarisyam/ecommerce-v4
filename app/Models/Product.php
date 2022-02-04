@@ -10,16 +10,18 @@ class Product extends Model
     use HasFactory;
     protected $guarded = [];
 
-    public function category() {
+    public function category()
+    {
         return $this->belongsTo(Category::class);
     }
 
-    public function users() {
+    public function users()
+    {
         return $this->belongsToMany(User::class, 'carts')->withPivot('quantity', 'price')->withTimestamps();;
     }
 
     public function orders()
     {
-        return $this->belongsToMany(Order::class)->withPivot(['quantity', 'price'])->withTimestamps();
+        return $this->belongsToMany(Order::class, 'order_product')->withPivot(['quantity', 'price'])->withTimestamps();
     }
 }

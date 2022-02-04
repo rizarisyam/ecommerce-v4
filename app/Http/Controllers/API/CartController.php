@@ -151,21 +151,54 @@ class CartController extends Controller
             'user_id' => $request->user_id,
             'invoice_number' => $this->invoiceNumber(),
         ]);
+        $products = $request->products;
+        dump($products);
 
+        foreach ($products as $product) {
+            // dump($product['pivot']['quantity']);
+            $order->products()->attach($product['id'], [
+                'quantity' => $product['pivot']['quantity'],
+                'price' => $product['pivot']['price']
+            ]);
+        }
 
-        $product = Product::findMany($request->product_id);
-
-        $checkout = $order->products()->attach($product, [
-            'quantity' => $request->quantity,
-            'price' => $request->price
-        ]);
-
-        return Redirect::route('carts.shipment', $request->user_id);
+        // foreach ($products as $key => $product) {
+        //     dump($product);
+        //     foreach ($product as $row) {
+        //         dump($row);
+        //     }
+        // $order->products()->attach($product->id, [
+        //     'quantity' => $product->pivot->quantity,
+        //     'price' => $product->pivot->price
+        // ]);
+        // }
+        // foreach ($products as $product) {
+        //     $order->products()->attach($product, [
+        //         'quantity' => $product->pivot->quantity,
+        //         'price' => $request->pivot->price
+        //     ]);
+        // }
     }
 
     public function shipment(Request $request)
     {
-        $query = $request->query('user_id');
-        return OrderResource::collection(Order::where('user_id', $query)->get());
+        $userId = $request->query('user_id');
+        $orderId = $request->query('order_id');
+        $query = Order::where('user_id', $userId)->get();
+        return OrderResource::collection($query);
+    }
+
+    public function storeShipment(Request $request)
+    {
+
+        $order = Order::where('user_id', $request->user_id);
+        $data = $order->update([
+            'expedition_id' => $request->expedition_id
+        ]);
+
+        return response()->json([
+            'message' => 'sukses',
+            'data' => $data
+        ]);
     }
 }
