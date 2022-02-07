@@ -47,7 +47,8 @@ Route::resource('/products', ProductController::class)->only(['index', 'store'])
 Route::resource('/expeditions', ExpeditionController::class)->only(['index', 'store']);
 
 Route::prefix('user')->group(function () {
-    Route::resource('/account', AccountController::class);
+    Route::get('/purchase', [AccountController::class, 'purchase'])->name('user.purchase');
+    Route::resource('/account', AccountController::class)->middleware('auth');
 });
 
 require __DIR__ . '/auth.php';

@@ -15,6 +15,8 @@ class UserAddressSeeder extends Seeder
     public function run()
     {
         UserAddress::create([
+            'name' => "Riza Nurfat Risyam",
+            'phone' => "082284908748",
             'address' => "Jl. Horizon Broadway Blok M1/3, The Icon, BSD City, Sampora, Kec. Cisauk, Kabupaten Tangerang, Banten 15345",
             'user_id' => 2
         ]);

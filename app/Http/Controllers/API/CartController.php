@@ -8,6 +8,7 @@ use App\Http\Resources\ProductResource;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
@@ -200,5 +201,26 @@ class CartController extends Controller
             'message' => 'sukses',
             'data' => $data
         ]);
+    }
+
+    public function checkoutPay(Request $request, $id)
+    {
+
+        $order = Order::findOrFail($id);
+        // return $order;
+        try {
+
+            $fileUpload = $request->file('fileUpload')->store('bukti_bayar', 'public');
+
+            $order->update([
+                'attachment' => $fileUpload
+            ]);
+
+            return response()->json([
+                'message' => 'success'
+            ]);
+        } catch (Exception $e) {
+            echo 'Message: ' . $e->getMessage();
+        }
     }
 }

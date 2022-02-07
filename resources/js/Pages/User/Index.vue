@@ -4,43 +4,7 @@
     <div class="max-w-full px-4 sm:px-6 lg:px-8 mt-20 mx-32">
         <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
         <div class="max-w-full mx-auto flex">
-            <section class="w-96 px-4">
-                <ul class="divide-y divide-gray-200">
-                    <li v-for="person in people" :key="person.email" class="py-4 flex">
-                        <img class="h-10 w-10 rounded-full" :src="person.image" alt />
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-gray-900">{{ person.name }}</p>
-                            <p class="text-sm text-gray-500">{{ person.email }}</p>
-                        </div>
-                    </li>
-                </ul>
-
-                <ul class="border-2">
-                    <li class="flex gap-4 items-center">
-                        <span class="text-blue-700">
-                            <svg
-                                class="fill-current"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    d="M7.5 6.5C7.5 8.981 9.519 11 12 11s4.5-2.019 4.5-4.5S14.481 2 12 2 7.5 4.019 7.5 6.5zM20 21h1v-1c0-3.859-3.141-7-7-7h-4c-3.86 0-7 3.141-7 7v1h17z"
-                                />
-                            </svg>
-                        </span>
-                        <h4>Akun Saya</h4>
-                    </li>
-
-                    <li class="flex gap-4 items-center my-2">
-                        <h4 class="ml-10">Profil</h4>
-                    </li>
-                    <li class="flex gap-4 items-center my-2">
-                        <h4 class="ml-10">Alamat</h4>
-                    </li>
-                </ul>
-            </section>
+            <account-sidebar />
             <section class="flex-1">
                 <Card>
                     <template #title>
@@ -53,14 +17,98 @@
                         </div>
                     </template>
                     <template #content>
-                        <main>
-                            <section class="border-r">
+                        <main class="flex">
+                            <section class="border-r flex-1">
                                 <form action>
                                     <div class="flex">
                                         <label for class="w-32">Username</label>
-                                        <p>{{ user.name }}</p>
+                                        <p>{{ user.customer.username }}</p>
+                                    </div>
+                                    <div class="flex my-4 items-center">
+                                        <label for class="w-32">Name</label>
+                                        <InputText
+                                            type="text"
+                                            class="p-inputtext p-inputtext-sm"
+                                            v-model="user.name"
+                                        />
+                                    </div>
+
+                                    <div class="flex my-4 items-center">
+                                        <label for class="w-32">Email</label>
+                                        <InputText
+                                            type="text"
+                                            class="p-inputtext p-inputtext-sm"
+                                            v-model="user.email"
+                                        />
+                                    </div>
+
+                                    <div class="flex my-4 items-center">
+                                        <label for class="w-32">Nomer Telepon</label>
+                                        <InputText
+                                            type="text"
+                                            class="p-inputtext p-inputtext-sm"
+                                            v-model="user.customer.phone_number"
+                                        />
+                                    </div>
+                                    <div class="flex my-4 items-center gap-4">
+                                        <label for class="w-32">Jenis Kelamin</label>
+                                        <div class="-ml-4 flex gap-4 items-center">
+                                            <div class="field-radiobutton flex items-center">
+                                                <RadioButton
+                                                    id="city1"
+                                                    name="city"
+                                                    value="laki-laki"
+                                                    v-model="account.gender"
+                                                    class="mr-2"
+                                                />
+                                                <label for="city1">Laki-laki</label>
+                                            </div>
+
+                                            <div class="field-radiobutton flex items-center">
+                                                <RadioButton
+                                                    id="city1"
+                                                    name="city"
+                                                    value="perempuan"
+                                                    v-model="account.gender"
+                                                    class="mr-2"
+                                                />
+                                                <label for="city1">Perempuan</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex my-4 items-center">
+                                        <label for class="w-32">Tanggal Lahir</label>
+                                        <Calendar
+                                            id="dateformat"
+                                            v-model="account.dateOfBirth"
+                                            dateFormat="yy-mm-dd"
+                                        />
+                                    </div>
+
+                                    <div class="ml-32">
+                                        <Button class label="Submit" />
                                     </div>
                                 </form>
+                            </section>
+                            <section class="mx-8">
+                                <div class="flex flex-col items-center gap-4">
+                                    <Image
+                                        :src="account.avatar"
+                                        alt="Image"
+                                        width="250"
+                                        imageClass="w-40 "
+                                        preview
+                                    />
+                                    <FileUpload
+                                        mode="basic"
+                                        url="./upload.php"
+                                        accept="image/*"
+                                        :customUpload="true"
+                                        :multiple="true"
+                                        @uploader="onUpload"
+                                    />
+                                </div>
                             </section>
                         </main>
                     </template>
@@ -74,20 +122,29 @@
 <script>
 import Navbar from "@/Components/Navbar.vue"
 import Card from 'primevue/card';
+import AccountSidebar from "@/Components/User/AccountSidebar.vue";
 
-const people = [
-    {
-        name: 'Calvin Hawkins',
-        email: 'calvin.hawkins@example.com',
-        image:
-            'https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    }
-]
+
 import { usePage } from '@inertiajs/inertia-vue3'
+import InputText from 'primevue/inputtext';
+import RadioButton from 'primevue/radiobutton';
+import Calendar from 'primevue/calendar';
+import Image from 'primevue/image';
+import FileUpload from 'primevue/fileupload';
+import Button from 'primevue/button';
+import { reactive } from "vue";
+
 export default {
     components: {
         Navbar,
-        Card
+        Card,
+        InputText,
+        RadioButton,
+        Calendar,
+        Image,
+        FileUpload,
+        Button,
+        AccountSidebar
     },
     props: {
         page: Object
@@ -96,10 +153,28 @@ export default {
         const page = usePage();
         const user = page.props.value.auth.user;
         console.log(user)
+        const account = reactive({
+            gender: user.customer.gender,
+            dateOfBirth: user.customer.date_of_birth,
+            avatar: user.customer.avatar,
+        });
+
+        const onUpload = (event) => {
+            console.log(event.files)
+        }
         return {
-            people,
-            user
+
+            user,
+            account,
+            onUpload
         }
     },
 }
 </script>
+
+<style scoped>
+.p-inputtext {
+    padding: 7px;
+    font-size: 1.1rem;
+}
+</style>

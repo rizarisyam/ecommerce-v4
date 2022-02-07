@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class AccountController extends Controller
@@ -15,6 +17,18 @@ class AccountController extends Controller
     public function index()
     {
         return Inertia::render("User/Index");
+    }
+
+    public function purchase()
+    {
+        $order = Order::with('user')->where('user_id', Auth::user()->id)->get();
+        foreach ($order as $row) {
+            return Inertia::render('User/Purchase', [
+                'orderId' => $row->id,
+                'orders' => $row,
+                'orderProducts' => $row->products
+            ]);
+        }
     }
 
     /**

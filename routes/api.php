@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
 Route::name('api.')->group(function () {
     Route::get('/carts/shipment', [CartController::class, 'shipment'])->name('carts.shipment');
     Route::put('/carts/shipment', [CartController::class, 'storeShipment'])->name('carts.store.shipment');
+    Route::patch('/carts/checkout-pay/{id}', [CartController::class, 'checkoutPay'])->name('checkout.pay');
     Route::apiResource('carts', CartController::class);
     Route::post('/carts/checkout', [CartController::class, 'checkout'])->name('carts.checkout');
 
