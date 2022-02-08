@@ -18,10 +18,12 @@ class CreateOrdersTable extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('invoice_number');
             $table->foreignId('expedition_id')->nullable()->constrained('expeditions')->onDelete('cascade');
-            $table->decimal('expedition_price')->nullable();
+            $table->decimal('expedition_price')->nullable()->default(0);
             $table->string('expedition_receipt')->nullable();
-            $table->enum('status',  ['SUBMIT', 'PROCESS', 'FINISH',
-            'CANCEL'])->default('SUBMIT');
+            $table->enum('status',  [
+                'unpaid', 'paid', 'packed', 'sent', 'finish',
+                'cancel'
+            ])->default('unpaid');
             $table->text('attachment')->nullable();
             $table->timestamp('confirm_at')->nullable();
             $table->string('confirm_by')->nullable();

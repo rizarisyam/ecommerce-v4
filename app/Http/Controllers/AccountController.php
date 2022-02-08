@@ -23,6 +23,7 @@ class AccountController extends Controller
     {
         $order = Order::with('user')->where('user_id', Auth::user()->id)->get();
         foreach ($order as $row) {
+            // dump($row);
             return Inertia::render('User/Purchase', [
                 'orderId' => $row->id,
                 'orders' => $row,

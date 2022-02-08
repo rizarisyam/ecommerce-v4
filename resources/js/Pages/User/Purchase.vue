@@ -72,19 +72,31 @@
                         <!-- <div class="border border-gray-700 my-2"></div> -->
                         <Divider />
 
-                        <div class="flex justify-end items-center">
-                            <h3 class="font-semibold">Total Pesanan : {{ rupiahFormat(subTotal) }}</h3>
+                        <div class="flex flex-col items-end">
+                            <div class="flex w-80">
+                                <h3 class="font-medium flex-1">Subtotal Produk</h3>
+                                <span>{{ rupiahFormat(subTotal) }}</span>
+                            </div>
+                            <div class="flex w-80">
+                                <h3 class="font-medium flex-1">Pengiriman</h3>
+                                <span>{{ rupiahFormat(orders.expedition_price) }}</span>
+                            </div>
+
+                            <div class="flex w-80 py-4">
+                                <h3 class="font-medium flex-1">Total Pesanan</h3>
+                                <span
+                                    class="text-2xl"
+                                >{{ rupiahFormat(Number(orders.expedition_price) + Number(subTotal)) }}</span>
+                            </div>
                         </div>
-                        <div class="my-4" v-if="!orders.attachment">
+                        <div class="my-4 flex">
                             <form
+                                v-if="!orders.attachment"
                                 class="flex flex-col gap-4"
                                 @submit.prevent="submitAttachment(orderId)"
                                 enctype="multipart/form-data"
                             >
-                                <input
-                                    type="file"
-                                    @input="order.attachment = $event.target.files[0]"
-                                />
+                                <input type="file" @input="onUpload" />
                                 <!-- <FileUpload
                                 class="my-4"
                                 mode="advanced"
@@ -93,7 +105,13 @@
                                 :customUpload="true"
                                 @uploader="onUpload($event)"
                                 />-->
-                                <Button class="w-fit" type="submit" label="Bayar" />
+                                <Button
+                                    class="w-fit"
+                                    type="submit"
+                                    label="Bayar"
+                                    :disabled="orders.expedition_price <= 0 || orders.expedition_price === null
+                                    "
+                                />
                             </form>
                         </div>
                     </template>
@@ -101,7 +119,10 @@
             </section>
             <!-- Content goes here -->
         </div>
+        <Toast />
     </div>
+    <!-- {{ orders.expedition_price <= 0 }} -->
+    <!-- {{ orders.expedition_price }} -->
 </template>
 
 <script>
@@ -113,11 +134,16 @@ import rupiahFormat from "@/Helper/rupiahFormat";
 import Divider from 'primevue/divider';
 import FileUpload from 'primevue/fileupload';
 import Button from 'primevue/button';
-import { computed, ErrorCodes, ref } from "vue";
+import { computed, ErrorCodes, onBeforeMount, ref } from "vue";
 import axios from "axios";
 import Tag from 'primevue/tag';
 import { useForm } from '@inertiajs/inertia-vue3'
 import { Inertia } from "@inertiajs/inertia";
+import Badge from 'primevue/badge';
+import Toast from 'primevue/toast';
+
+import { useToast } from "primevue/usetoast";
+
 export default {
     components: {
         Navbar,
@@ -126,7 +152,9 @@ export default {
         Divider,
         FileUpload,
         Button,
-        Tag
+        Tag,
+        Badge,
+        Toast
     },
     props: {
         orderProducts: Object,
@@ -136,7 +164,12 @@ export default {
     setup(props) {
         const rowOrder = ref(props.orderProducts);
         const orderId = ref(props.orderId);
-        const orders = ref(props.orders)
+        // const orders = ref(props.orders)
+
+        console.log(props.orders)
+
+        const toast = useToast();
+
 
 
         let attachment = ref("");
@@ -177,16 +210,20 @@ export default {
                 return acc + curr.pivot.quantity * curr.pivot.price
             }, 0)
         })
+
+        onBeforeMount(() => {
+            toast.add({ severity: 'info', summary: 'Info Message', detail: 'Message Content', life: 3000 });
+        })
         return {
             rowOrder,
             rupiahFormat,
             subTotal,
             onUpload,
             orderId,
-            order,
+
             submitAttachment,
             attachment,
-            orders
+            // orders
 
         }
     },

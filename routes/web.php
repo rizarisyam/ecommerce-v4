@@ -5,6 +5,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ExpeditionController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
@@ -39,6 +40,7 @@ Route::get('/dashboard', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('/carts', CartController::class)->only(['index']);
+    Route::resource('/orders', OrderController::class);
 });
 
 Route::get('/carts/shipment/', [CartController::class, 'shipment'])->name('carts.shipment');

@@ -19,7 +19,8 @@ class OrderResource extends JsonResource
         //     'products' => new ProductResource($this->products)
         // ];
         return parent::toArray($request, [
-            'products' => new ProductResource($this->products)
+            'products' => new ProductResource($this->products),
+            'users' => new UserResource($this->user)
         ]);
     }
 }

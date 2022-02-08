@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\ExpeditionController;
+use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\UserAddressController;
 use App\Http\Resources\OrderResource;
@@ -42,5 +43,6 @@ Route::name('api.')->group(function () {
     Route::apiResource('categories', CategoryController::class);
     Route::apiResource('expeditions', ExpeditionController::class);
     Route::apiResource('user-address', UserAddressController::class);
+    Route::apiResource('/orders', OrderController::class);
 });
 Route::delete('carts/user/{id}', [CartController::class, 'deleteByProduct'])->name('cart.product');

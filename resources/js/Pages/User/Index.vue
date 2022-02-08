@@ -159,6 +159,11 @@ export default {
             avatar: user.customer.avatar,
         });
 
+        const mode = reactive({
+            show: false,
+            edit: false
+        })
+
         const onUpload = (event) => {
             console.log(event.files)
         }
@@ -166,7 +171,8 @@ export default {
 
             user,
             account,
-            onUpload
+            onUpload,
+            mode
         }
     },
 }
