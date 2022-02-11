@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\CustomerController;
 use App\Http\Controllers\API\ExpeditionController;
 use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\ProductController;
@@ -44,5 +45,6 @@ Route::name('api.')->group(function () {
     Route::apiResource('expeditions', ExpeditionController::class);
     Route::apiResource('user-address', UserAddressController::class);
     Route::apiResource('/orders', OrderController::class);
+    Route::apiResource('/customer', CustomerController::class);
 });
 Route::delete('carts/user/{id}', [CartController::class, 'deleteByProduct'])->name('cart.product');

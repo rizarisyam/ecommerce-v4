@@ -3,11 +3,13 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpeditionController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
+use App\Models\Customer;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -41,6 +43,7 @@ Route::get('/dashboard', function () {
 Route::middleware(['auth'])->group(function () {
     Route::resource('/carts', CartController::class)->only(['index']);
     Route::resource('/orders', OrderController::class);
+    Route::resource('/customer', CustomerController::class);
 });
 
 Route::get('/carts/shipment/', [CartController::class, 'shipment'])->name('carts.shipment');
@@ -50,6 +53,7 @@ Route::resource('/expeditions', ExpeditionController::class)->only(['index', 'st
 
 Route::prefix('user')->group(function () {
     Route::get('/purchase', [AccountController::class, 'purchase'])->name('user.purchase');
+    Route::get('/address', [AccountController::class, 'address'])->name('user.address');
     Route::resource('/account', AccountController::class)->middleware('auth');
 });
 

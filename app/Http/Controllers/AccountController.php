@@ -32,6 +32,11 @@ class AccountController extends Controller
         }
     }
 
+    public function address()
+    {
+        return Inertia::render('User/Address');
+    }
+
     /**
      * Show the form for creating a new resource.
      *

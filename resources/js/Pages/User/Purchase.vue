@@ -23,12 +23,20 @@
 
                 <Card class="py-0 my-4">
                     <template #title>
-                        <div v-if="orders.attachment">
+                        <div v-if="orders.status === 'UNPAID'">
+                            <Tag
+                                class="mr-2 p-tag"
+                                icon="pi pi-check"
+                                severity="warning"
+                                value="Proses Verifikasi Pembayaran"
+                            ></Tag>
+                        </div>
+                        <div v-if="orders.status === 'PAID'">
                             <Tag
                                 class="mr-2 p-tag"
                                 icon="pi pi-check"
                                 severity="success"
-                                value="Proses Verifikasi Pembayaran"
+                                value="Pembayaran Terverifikasi"
                             ></Tag>
                         </div>
                     </template>

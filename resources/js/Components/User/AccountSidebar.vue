@@ -33,7 +33,9 @@
                     <h4 class="ml-10">Profil</h4>
                 </li>
                 <li class="flex gap-4 items-center my-2">
-                    <h4 class="ml-10">Alamat</h4>
+                    <Link :href="route('user.address')" method="get" as="button" type="button">
+                        <h4 class="ml-10">Alamat</h4>
+                    </Link>
                 </li>
             </ul>
 
@@ -72,7 +74,11 @@ const people = [
 ]
 
 import { ref } from 'vue'
+import { Link } from '@inertiajs/inertia-vue3'
 export default {
+    components: {
+        Link
+    },
     setup() {
 
         const openDropdown = ref(false)

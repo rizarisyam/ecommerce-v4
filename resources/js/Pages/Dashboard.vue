@@ -234,7 +234,7 @@ const navigation = [
     { name: 'Products', href: route('products.index'), icon: FolderIcon, current: route().current('products.*') },
     { name: 'Expedition', href: route('expeditions.index'), icon: CalendarIcon, current: route().current('expeditions.*') },
     { name: 'Orders', href: route('orders.index'), icon: InboxIcon, current: route().current('orders.*') },
-    { name: 'Reports', href: '#', icon: ChartBarIcon, current: false },
+    { name: 'Customer', href: route('customer.index'), icon: ChartBarIcon, current: route().current('customer.*') },
 ]
 const userNavigation = [
     { name: 'Your Profile', href: '#' },
