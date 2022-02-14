@@ -4,7 +4,7 @@ import Cart from "./Modules/Cart";
 import Category from "@/Store/Modules/Category";
 import Expedition from "@/Store/Modules/Expedition";
 import userAddress from "./Modules/UserAddress";
-import customerModule from "./Modules/Customer";
+import customer from "./Modules/Customer";
 
 export default createStore({
     modules: {
@@ -13,6 +13,6 @@ export default createStore({
         Category,
         Expedition,
         userAddress,
-        customerModule,
+        customer,
     },
 });

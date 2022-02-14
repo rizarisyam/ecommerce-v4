@@ -1,5 +1,5 @@
 <template>
-    <form class enctype="multipart/form-data">
+    <form class enctype="multipart/form-data" @submit.prevent="storeCustomer">
         <div class="flex items-center">
             <label class="w-40" for>Username</label>
             <input class="flex-1" type="text" v-model="customer.username" />
@@ -55,13 +55,14 @@
             <input class="flex-1" type="date" @change="onBirthdayChange" />
         </div>
         <!-- {{ customer }} -->
-        <div>
+        <div class="flex items-center mt-4">
+            <label class="w-40" for></label>
             <button
-                @click.prevent="storeCustomer"
                 type="submit"
                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mb-2"
             >Submit</button>
         </div>
+        <div></div>
     </form>
 </template>
 
@@ -125,7 +126,6 @@ export default {
         const storeCustomer = () => {
             const fd = new FormData();
 
-
             fd.append('avatar', fileSelected.value);
             fd.append('username', customer.username);
             fd.append('name', customer.name);
@@ -135,6 +135,7 @@ export default {
 
             store.dispatch("addCustomer", fd);
             store.dispatch("fetchCustomer");
+
 
             // Inertia.post(route('api.customer.store'), fd, {
             //     forceFormData: true

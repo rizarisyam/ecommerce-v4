@@ -1,15 +1,25 @@
+import { Inertia } from "@inertiajs/inertia";
 import axios from "axios";
 
 const state = {
-    customers: [],
+    dataCustomers: [],
+    customer: {},
+    editMode: false,
+    isLoading: false,
 };
 
 const mutations = {
-    SET_CUSTOMER(state, payload) {
-        state.customers = payload;
+    UPDATE_CUSTOMERS(state, payload) {
+        state.dataCustomers = payload;
     },
-    ADD_CUSTOMER(state, payload) {
-        state.customers.unshift(payload);
+    UPDATE_CUSTOMER(state, payload) {
+        state.customer = payload;
+    },
+    TOGGLE_EDITMODE(state, payload) {
+        state.editMode = payload;
+    },
+    TOGLE_ISLOADING(state, payload) {
+        state.isLoading = payload;
     },
 };
 
@@ -17,30 +27,96 @@ const actions = {
     async fetchCustomer(context) {
         try {
             const response = await axios.get(route("api.customer.index"));
-            console.log(response);
-            context.commit("SET_CUSTOMER", response.data);
+            console.log("fetch", response);
+            context.commit("UPDATE_CUSTOMERS", response.data);
         } catch (error) {
-            console.log(error.message);
+            console.error(error.message);
         }
     },
-    async addCustomer(context, payload) {
+    async addCustomer(_, payload) {
         try {
             const response = await axios.post(
                 route("api.customer.store"),
-                payload
+                payload,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form",
+                    },
+                }
             );
             console.log(response);
-            context.commit("ADD_CUSTOMER", response.data);
+            // if (response.status === 200) {
+            //     context.commit("UPDATE_CUSTOMERS", response.data);
+            // }
         } catch (error) {
-            console.log(error.message);
+            console.error(error.message);
+        }
+    },
+
+    async updateCustomer(_, payload) {
+        // console.log(payload.get("id"));
+        console.log(payload);
+        try {
+            const response = await axios.patch(
+                route("api.customer.update", { id: payload.id }),
+                {
+                    username: payload.username,
+                    user_id: payload.user_id,
+                    name: payload.name,
+                    phone_number: payload.phone_number,
+                    gender: payload.gender,
+                    birthday: payload.birthday,
+                    avatar: payload.avatar,
+                },
+                {
+                    headers: {
+                        "Content-Type": "multipart/form",
+                    },
+                }
+            );
+            console.log(response);
+            // Inertia.patch(
+            //     route("api.customer.update", { id: payload.get("id") }),
+            //     payload
+            // );
+
+            // if (response.status === 200) {
+            //     context.commit("UPDATE_CUSTOMERS", response.data);
+            // }
+        } catch (error) {
+            console.error(error.message);
+        }
+    },
+
+    async getCustomerById(context, payload) {
+        context.commit("TOGLE_ISLOADING", true);
+        try {
+            const response = await axios.get(
+                route("api.customer.show", payload)
+            );
+
+            if (response.status === 200) {
+                context.commit("UPDATE_CUSTOMER", response.data);
+                context.commit("TOGLE_ISLOADING", false);
+            }
+        } catch (error) {
+            console.error(error.message);
         }
     },
 };
 
 const getters = {
     getCustomers: (state) => {
-        // const { data } = state.customers;
-        return state.customers;
+        return state.dataCustomers;
+    },
+    getCustomer: (state) => {
+        return state.customer;
+    },
+    getEditMode: (state) => {
+        return state.editMode;
+    },
+    getIsLoading: (state) => {
+        return state.isLoading;
     },
 };
 

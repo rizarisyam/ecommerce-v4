@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\CustomerResource;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 
 class CustomerController extends Controller
 {
@@ -45,7 +46,7 @@ class CustomerController extends Controller
             $avatar = $request->file('avatar');
             $avatarPath = $avatar->store('avatars', 'public');
         }
-        Customer::create([
+        $customer = Customer::create([
             'user_id' => $request->user_id,
             'username' => $request->username,
             'name' => $request->name,
@@ -54,6 +55,8 @@ class CustomerController extends Controller
             'birthday' => $request->birthday,
             'avatar' => $avatarPath
         ]);
+
+        return new CustomerResource($customer);
         // return new CustomerResource($customer);
         // return response()->json('sukses');
     }
@@ -66,7 +69,9 @@ class CustomerController extends Controller
      */
     public function show($id)
     {
-        //
+        $customer = Customer::findOrFail($id);
+
+        return new CustomerResource($customer);
     }
 
     /**
@@ -89,7 +94,28 @@ class CustomerController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // return $request->all();
+        $avatarPath = "";
+        $customer = Customer::findOrFail($id);
+        if ($request->hasFile('avatar')) {
+            $avatar = $request->file('avatar');
+            $avatarPath = $avatar->store('avatars', 'public');
+        } else {
+            $avatarPath = $customer->avatar;
+        }
+
+        $data = $customer->update([
+            'user_id' => $request->user_id,
+            'username' => $request->username,
+            'name' => $request->name,
+            'phone_number' => $request->phone_number,
+            'gender' => $request->gender,
+            'birthday' => $request->birthday,
+            'avatar' => $avatarPath
+        ]);
+        return response()->json($data, 200);
+        // return Redirect::route('customer.index');
+        // return new CustomerResource($customer);
     }
 
     /**
