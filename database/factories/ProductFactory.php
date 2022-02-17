@@ -17,8 +17,9 @@ class ProductFactory extends Factory
         return [
             'name' => $this->faker->name(),
             'desc' => $this->faker->paragraph(),
+            'quantity' => $this->faker->randomDigitNot(0),
             'SKU' => $this->faker->text(),
-            'price' => $this->faker->randomFloat(2,100000, 1000000),
+            'price' => $this->faker->randomFloat(2, 100000, 1000000),
             'category_id' => rand(1, Category::count())
         ];
     }

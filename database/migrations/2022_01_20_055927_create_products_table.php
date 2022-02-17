@@ -18,6 +18,7 @@ class CreateProductsTable extends Migration
             $table->string('name');
             $table->text('desc')->nullable();
             $table->text('SKU')->nullable();
+            $table->integer('quantity');
             $table->decimal('price');
             $table->decimal('discount')->default(0);
             $table->text('image_path')->nullable();

@@ -91,17 +91,18 @@
                 >Update</button>
             </div>
             <div></div>
-            {{ editMode }}
+            {{ customer }}
         </form>
     </div>
 </template>
 
 <script>
 import { Inertia } from '@inertiajs/inertia';
-import { computed, onBeforeMount, reactive, ref } from 'vue'
+import { computed, onBeforeMount, onMounted, reactive, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useForm } from '@inertiajs/inertia-vue3';
 import axios from 'axios';
+import { useCustomer } from '@/Composables/customer';
 export default {
 
     setup(_, context) {
@@ -109,10 +110,10 @@ export default {
         const inputFile = ref(null);
         const fileSelected = ref();
         const imagePreview = ref();
-
+        const { getAllCustomer } = useCustomer()
 
         const store = useStore();
-
+        // console.log(customer.value)
 
         const customer = ref({
             username: null,
@@ -157,25 +158,35 @@ export default {
 
         }
 
-        const storeCustomer = () => {
-            const fd = new FormData();
+        const storeCustomer = async () => {
+            try {
+                const fd = new FormData();
 
-            fd.append('avatar', fileSelected.value);
-            fd.append('username', customer.value.username);
-            fd.append('name', customer.value.name);
-            fd.append('phone_number', customer.value.phone_number);
-            fd.append('gender', customer.value.gender);
-            fd.append('birthday', customer.value.date_of_birth);
+                fd.append('avatar', fileSelected.value);
+                fd.append('username', customer.value.username);
+                fd.append('name', customer.value.name);
+                fd.append('phone_number', customer.value.phone_number);
+                fd.append('gender', customer.value.gender);
+                fd.append('birthday', customer.value.date_of_birth);
 
-            store.dispatch("addCustomer", fd);
+                await store.dispatch("addCustomer", fd);
+                await store.dispatch("fetchCustomer");
+                context.emit('closeModal');
+            } catch (error) {
+                console.log(error.message)
+            }
+
+
+
 
 
             // Inertia.post(route('api.customer.store'), fd, {
             //     forceFormData: true
             // });
-            store.dispatch("fetchCustomer");
+            // await getAllCustomer()
+            // store.dispatch("fetchCustomer");
 
-            context.emit('closeModal');
+
         }
 
         const editCustomer = () => {
@@ -184,26 +195,38 @@ export default {
             }
         }
 
-        const updateCustomer = () => {
-            const fd = new FormData();
-            const id = customer.value.id;
+        const updateCustomer = async () => {
+            try {
+                const fd = new FormData();
+                const id = customer.value.id;
 
-            fd.append('id', customer.value.id);
-            fd.append('avatar', fileSelected.value);
-            fd.append('username', customer.value.username);
-            fd.append('name', customer.value.name);
-            fd.append('phone_number', customer.value.phone_number);
-            fd.append('gender', customer.value.gender);
-            fd.append('birthday', customer.value.birthday);
+                fd.append('id', customer.value.id);
+                fd.append('avatar', fileSelected.value);
+                fd.append('username', customer.value.username);
+                fd.append('name', customer.value.name);
+                fd.append('phone_number', customer.value.phone_number);
+                fd.append('gender', customer.value.gender);
+                fd.append('birthday', customer.value.birthday);
+
+                const customerForm = useForm({
+                    avatar: fileSelected.value,
+                    username: customer.value.username,
+                    name: customer.value.name,
+                    phone_number: customer.value.phone_number,
+                    gender: customer.value.gender,
+                    birthday: customer.value.birthday
+                })
+
+                // customerForm.patch(`/api/customer/${id}`);
+                await store.dispatch("updateCustomer", fd)
+                await store.dispatch("fetchCustomer");
+                context.emit('closeModal');
+            } catch (error) {
+
+            }
+
             // const id = customer.value.id;
-            const customerForm = useForm({
-                avatar: fileSelected.value,
-                username: customer.value.username,
-                name: customer.value.name,
-                phone_number: customer.value.phone_number,
-                gender: customer.value.gender,
-                birthday: customer.value.birthday
-            })
+
 
 
             // fd.append('id', customer.value.id);
@@ -214,16 +237,23 @@ export default {
             // fd.append('gender', customer.value.gender);
             // fd.append('birthday', customer.value.date_of_birth);
 
-            customerForm.patch(`/api/customer/${id}`);
+
             // Inertia.patch(route('api.customer.update', id), customerForm)
             // store.dispatch("updateCustomer", data)
-            store.dispatch("fetchCustomer");
-            context.emit('closeModal');
+            // getAllCustomer()
+            //
+
         }
 
         onBeforeMount(() => {
             editCustomer()
             customer.value;
+        })
+
+        onMounted(() => {
+            if (editMode.value) {
+                customer.value = { ...store.getters.getCustomer }
+            }
         })
 
         const onBirthdayChange = (e) => {

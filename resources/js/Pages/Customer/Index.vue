@@ -44,6 +44,44 @@
                     </div>
                 </template>
             </Column>
+            <!-- <template #footer>
+                <nav
+                    class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
+                    aria-label="Pagination"
+                >
+                    <div class="hidden sm:block">
+                        <p class="text-sm text-gray-700">
+                            Showing
+                            {{ ' ' }}
+                            <span class="font-medium">1</span>
+                            {{ ' ' }}
+                            to
+                            {{ ' ' }}
+                            <span
+                                class="font-medium"
+                            >10</span>
+                            {{ ' ' }}
+                            of
+                            {{ ' ' }}
+                            <span
+                                class="font-medium"
+                            >20</span>
+                            {{ ' ' }}
+                            results
+                        </p>
+                    </div>
+                    <div class="flex-1 flex justify-between sm:justify-end">
+                        <a
+                            href="#"
+                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                        >Previous</a>
+                        <a
+                            href="#"
+                            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                        >Next</a>
+                    </div>
+                </nav>
+            </template>-->
         </DataTable>
 
         <Dialog
@@ -135,14 +173,21 @@
 
             </form>-->
             <Form @closeModal="onCloseModal"></Form>
+            <!-- <Suspense>
+                <template #fallback>
+                    <div>Loading...</div>
+                </template>
+            </Suspense>-->
             <!-- <create v-if="mode.create" @fetchData="fetchCustomer" @closeModal="onCloseModal" /> -->
         </Dialog>
         <ConfirmDialog></ConfirmDialog>
         <Toast />
+        <!-- {{ dataCustomer.meta }} -->
     </div>
 </template>
 
 <script>
+import { computed, onBeforeMount, reactive, ref, defineAsyncComponent, onMounted, onUpdated, onUnmounted } from 'vue';
 import Layout from '@/Pages/Dashboard.vue'
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -153,12 +198,11 @@ import Toast from 'primevue/toast'
 
 // component UI Component
 import Create from '@/Components/Customer/Create.vue';
-import Form from '@/Components/Customer/Form.vue';
+// import Form from '@/Components/Customer/Form.vue';
 import ProgressSpinner from 'primevue/progressspinner';
+const Form = defineAsyncComponent(() => import("@/Components/Customer/Form.vue"))
 
 
-
-import { computed, onBeforeMount, reactive, ref } from 'vue';
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import axios from 'axios';
@@ -182,6 +226,7 @@ export default {
         Form
     },
     setup() {
+        const { getAllCustomer, customers, destroyCustomer, getCustomerById, customer } = useCustomer()
 
         const store = useStore();
         const confirm = useConfirm();
@@ -189,8 +234,8 @@ export default {
         const isOpen = ref(false)
         const dataCustomer = ref([]);
 
-        const { getAllCustomer, customers, destroyCustomer } = useCustomer()
 
+        console.log(customers.value)
 
         const mode = reactive({
             create: false,
@@ -214,8 +259,8 @@ export default {
                     try {
                         // const response = await axios.delete(route('api.customer.destroy', id))
                         destroyCustomer(id)
-                        getAllCustomer()
-                        // fetchCustomer()
+                        // getAllCustomer()
+                        fetchCustomer()
                         toast.add({ severity: 'success', summary: 'Confirmed', detail: 'Record deleted', life: 3000 });
 
                         console.log(response);
@@ -230,10 +275,17 @@ export default {
         }
 
 
-        const editHandler = (id) => {
-            onOpenModal();
+        const editHandler = async (id) => {
             store.commit('TOGGLE_EDITMODE', true)
-            store.dispatch("getCustomerById", { id })
+            try {
+                await store.dispatch("getCustomerById", { id })
+                onOpenModal();
+            } catch (error) {
+
+            }
+            // getCustomerById(id).then((res) => {
+            //     console.log('edit modal', res);
+            // })
         }
 
 
@@ -266,10 +318,20 @@ export default {
         })
 
         // lifecycle
-        onBeforeMount(() => {
-            // fetchCustomer()
-            console.log('before mount')
+        onMounted(() => {
+            fetchCustomer()
+            console.log('component mounted')
             getAllCustomer()
+            // console.log('customer', customers.value)
+        })
+
+        onUpdated(() => {
+            // getAllCustomer()
+            console.log('component updated')
+        })
+
+        onUnmounted(() => {
+            console.log('unmounted')
         })
 
 

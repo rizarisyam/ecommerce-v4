@@ -48,7 +48,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/carts/shipment/', [CartController::class, 'shipment'])->name('carts.shipment');
 Route::resource('/categories', CategoryController::class);
-Route::resource('/products', ProductController::class)->only(['index', 'store']);
+Route::resource('/products', ProductController::class);
 Route::resource('/expeditions', ExpeditionController::class)->only(['index', 'store']);
 
 Route::prefix('user')->group(function () {

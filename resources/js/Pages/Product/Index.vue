@@ -1,210 +1,162 @@
 <template>
-    <div class="w-full h-full">
-        <Panel header="Manage Category" :toggleable="true">
-            <Button label="Add Category" @click="openModalCreate" />
-
-            <DataTable
-                :value="rowData"
-                :paginator="true"
-                :rows="10"
-                paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-                :rowsPerPageOptions="[10, 20, 50]"
-                responsiveLayout="scroll"
-                currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
-            >
-                <Column field="id" header="ID"></Column>
-                <Column field="image_path" header="Images">
-                    <template #body="slotProps"></template>
-                </Column>
-                <Column field="name" header="Name">
-                    <template #body="slotProps">
-                        <div>
-                            <h3 class="mb-2">{{ slotProps.data.name }}</h3>
-                            <h3 class="text-sm text-gray-500">{{ slotProps.data.category.name }}</h3>
-                        </div>
-                    </template>
-                </Column>
-                <Column field="desc" header="Desc"></Column>
-                <Column field="SKU" header="SKU"></Column>
-                <Column field="price" header="Price"></Column>
-                <Column field="discount" header="Discount"></Column>
-                <Column header="Actions" field="id">
-                    <template #body="slotProps">
-                        <div class="p-buttonset flex">
-                            <Button label="Show" @click="openModalShow" icon="pi pi-check" />
-                            <Button
-                                label="Edit"
-                                @click="openModalEdit(slotProps.data.id)"
-                                icon="pi pi-times"
+    <div class="h-screen">
+        <Message v-if="message" class="p-messages" severity="success">{{ message }}</Message>
+        <DataTable :value="products" responsiveLayout="scroll">
+            <template #header>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3>Products</h3>
+                    </div>
+                    <Link :href="route('products.create')">
+                        <Button label="Create Product" class="p-button-success" />
+                    </Link>
+                </div>
+            </template>
+            <Column field header="Images">
+                <template #body="props">
+                    <div v-if="props.data.image_path !== null">
+                        <div class="flex">
+                            <img
+                                v-for="image in JSON.parse(props.data.image_path)"
+                                :key="image"
+                                class="h-16 object-cover"
+                                :src="'storage/' + image"
+                                alt="not found"
                             />
+                        </div>
+                    </div>
+                    <div v-else>N/A</div>
+                </template>
+            </Column>
+            <Column field="name" header="Product">
+                <template #body="props">
+                    <div class="flex flex-col">
+                        {{ props.data.name }}
+                        <p class="text-gray-400 text-sm">{{ props.data.category.name }}</p>
+                    </div>
+                </template>
+            </Column>
+            <Column field="desc" header="Description" style="width:300px">
+                <template #body="props">
+                    <div>
+                        <span>{{ props.data.desc.slice(0, 100) + '...' }}</span>
+                    </div>
+                </template>
+            </Column>
+            <Column field="quantity" header="Quantity"></Column>
+            <Column field="price" header="Price">
+                <template #body="props">
+                    <div>
+                        <span>{{ rupiahFormat(props.data.price) }}</span>
+                    </div>
+                </template>
+            </Column>
+            <Column field header="Actions">
+                <template #body="props">
+                    <div class="flex justify-end">
+                        <span class="p-buttonset">
+                            <Button label="Save" icon="pi pi-check" />
+                            <Link :href="route('products.edit', props.data.id)">
+                                <Button label="Edit" icon="pi pi-times" />
+                            </Link>
+
                             <Button
                                 label="Delete"
-                                @click="confirmDeleteData(slotProps.data.id)"
                                 icon="pi pi-trash"
+                                class="p-button-danger"
+                                @click="deleteProduct(props.data.id)"
                             />
-                        </div>
-                    </template>
-                </Column>
-
-                <!-- <Dialog header="Category" v-model:visible="display" :breakpoints="{'960px': '75vw', '640px': '100vw'}" :style="{width: '50vw'}">
-                <Form v-if="mode.create" @closeModal="display = false" />
-                <form-edit v-if="mode.edit" :rowDataEdit="rowDataEdit" />
-                </Dialog>-->
-            </DataTable>
-        </Panel>
-        <Dialog
-            header="Category"
-            v-model:visible="display"
+                        </span>
+                    </div>
+                </template>
+            </Column>
+        </DataTable>
+        <ConfirmDialog
             :breakpoints="{ '960px': '75vw', '640px': '100vw' }"
             :style="{ width: '50vw' }"
-        >
-            <form-add v-if="mode.create" @closeModal="display = false" />
-            <form-edit v-if="mode.edit" :row-data-edit="rowDataEdit" />
-        </Dialog>
-
-        <ConfirmDialog></ConfirmDialog>
-
+        ></ConfirmDialog>
         <Toast />
     </div>
 </template>
 
 <script>
-import Layout from "@/Pages/Dashboard.vue";
+import BaseLayout from '@/Pages/Dashboard.vue'
+import { onMounted, computed, ref, defineAsyncComponent } from 'vue'
 
-import DataTable from "primevue/datatable";
-import Column from "primevue/column";
-import Card from "primevue/card";
-import Button from "primevue/button";
-import Panel from "primevue/panel";
-import Dialog from "primevue/dialog";
-import Image from "primevue/image";
-import ConfirmDialog from "primevue/confirmdialog";
+import { useProduct } from '@/Composables/product'
+import rupiahFormat from '@/Helper/rupiahFormat';
+
+// UI components
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import Button from 'primevue/button';
+import Message from 'primevue/message';
+import ConfirmDialog from 'primevue/confirmdialog';
 import { useConfirm } from "primevue/useconfirm";
+import Toast from 'primevue/toast';
 import { useToast } from "primevue/usetoast";
-import Toast from "primevue/toast";
+import { Link, usePage } from '@inertiajs/inertia-vue3'
+import axios from 'axios';
+import { Inertia } from '@inertiajs/inertia';
 
-import FormAdd from "@/Components/Product/FormAdd.vue";
-import FormEdit from "@/Components/Category/FormEdit.vue";
-
-import { computed, onBeforeMount, reactive, ref } from "vue";
-import axios from "axios";
-import { useStore } from "vuex";
 export default {
-    layout: Layout,
-    props: {},
     components: {
         DataTable,
         Column,
-        Card,
         Button,
-        Panel,
-        Dialog,
-        FormAdd,
-        Image,
+        Link,
+        Message,
         ConfirmDialog,
-        Toast,
-        FormEdit,
+        Toast
     },
+    layout: BaseLayout,
     setup(props) {
-        const store = useStore();
-
-        const rowDataEdit = ref([]);
-
-        const mode = reactive({
-            create: false,
-            edit: false,
-            show: false,
-        });
-        const display = ref(false);
+        const page = usePage();
         const confirm = useConfirm();
         const toast = useToast();
+        const message = page.props.value.flash.message;
+        const { products, getProducts } = useProduct()
 
-        const openModalCreate = () => {
-            display.value = !display.value;
-            mode.create = true;
-        };
-
-        const openModalShow = () => {
-            display.value = !display.value;
-            mode.show = true;
-            mode.create = false;
-        };
-
-        const openModalEdit = (id) => {
-            display.value = !display.value;
-            mode.edit = true;
-            store.dispatch("getCategoryById", id);
-            // store.dispatch('getCategoryById', id);
-            rowDataEdit.value = computed(() => store.getters.categoryItems);
-        };
-        const showImage = () => {
-            return "/storage/";
-        };
-
-        const confirmDeleteData = (id) => {
+        const deleteProduct = (id) => {
             confirm.require({
-                message: "Do you want to delete this record?",
-                header: "Delete Confirmation",
-                icon: "pi pi-info-circle",
-                acceptClass: "p-button-danger",
-                accept: () => {
-                    deleteCategory(id);
+                message: 'Do you want to delete this record?',
+                header: 'Delete Confirmation',
+                icon: 'pi pi-info-circle',
+                acceptClass: 'p-button-danger',
+                accept: async () => {
+                    // await axios.delete('api.products.destroy', id);
+                    Inertia.delete(route('products.destroy', id));
+                    getProducts()
+                    toast.add({ severity: 'success', summary: 'Success Message', detail: 'Message Content', life: 3000 });
                 },
                 reject: () => {
-                    toast.add({
-                        severity: "error",
-                        summary: "Rejected",
-                        detail: "You have rejected",
-                        life: 3000,
-                    });
-                },
-            });
-        };
-
-        const fetchData = () => {
-            store.dispatch("getProductItems");
-        };
-
-        const deleteCategory = async (id) => {
-            try {
-                const response = await axios.delete(`api/categories/${id}`);
-                if (response) {
-                    fetchData();
-                    toast.add({
-                        severity: "info",
-                        summary: "Confirmed",
-                        detail: "Record deleted",
-                        life: 3000,
-                    });
+                    toast.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
                 }
-            } catch (error) {
-                console.log(error);
-            }
-        };
+            });
+        }
 
-        // lifecycle
-        onBeforeMount(() => {
-            fetchData();
-        });
 
+
+        onMounted(() => {
+            getProducts()
+            // console.log(page)
+        })
         return {
-            display,
-
-            rowData: computed(() => store.getters.productItems),
-            showImage,
-            mode,
-            openModalCreate,
-            openModalShow,
-            confirmDeleteData,
-            openModalEdit,
-            rowDataEdit,
-        };
-    },
-};
+            products,
+            rupiahFormat,
+            message,
+            deleteProduct
+        }
+    }
+}
 </script>
 
 <style scoped>
-.p-float-label {
-    color: black;
+.p-messages {
+    /* padding: 0.5rem 0.75rem; */
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 </style>

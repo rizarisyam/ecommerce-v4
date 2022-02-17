@@ -1,174 +1,178 @@
 <template>
-    <div class="w-full h-full">
-        <Panel header="Manage Category" :toggleable="true">
-            <Button>
-                <Link :href="route('categories.create')">Create Category</Link>
-            </Button>
-            <!-- <Button label="Add Category" @click="openModalCreate" /> -->
-
-            <DataTable
-                :value="rowData"
-                :paginator="true"
-                :rows="10"
-                paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-                :rowsPerPageOptions="[10, 20, 50]"
-                responsiveLayout="scroll"
-                currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
-            >
-                <Column field="id" header="ID"></Column>
-                <Column field="image_path" header="Images">
-                    <template #body="slotProps">
-                        <!-- {{slotProps.data.image_path}} -->
-                        <!-- {{JSON.parse(slotProps.data.image_path)}} -->
-                        <div class="flex">
-                            <!-- {{true}} -->
-                            <!-- <img :src="slotProps.data.image_path" /> -->
-                            <!-- <Image
-                                imageClass="w-24 object-cover rounded"
-                                v-for="img in JSON.parse(slotProps.data.image_path)"
-                                :key="img"
-                                :src="showImage() + img"
-                                alt="Image Text"
-                            />-->
-                        </div>
-                        <!-- <div v-else>N/A</div> -->
-                        <!-- <img v-for="slotProps.data.image_path in img" :key="img" /> -->
-                    </template>
-                </Column>
-                <Column field="name" header="Name"></Column>
-                <Column field="desc" header="Category"></Column>
-                <Column header="Actions" field="id">
-                    <template #body="slotProps">
-                        <div class="p-buttonset flex">
-                            <!-- <Button
-                                label="Show"
-                                @click="openModalShow(slotProps.data.id)"
-                                icon="pi pi-check"
-                            />-->
-                            <Button icon="pi pi-check">
-                                <Link :href="route('categories.show', slotProps.data.id)">Show</Link>
-                            </Button>
-                            <Button icon="pi pi-times">
-                                <Link :href="route('categories.edit', slotProps.data.id)">Edit</Link>
-                            </Button>
+    <div class="h-screen">
+        <DataTable
+            :value="categories"
+            :paginator="true"
+            :rows="10"
+            class="p-datatable-sm"
+            headerClass="text-red-500"
+        >
+            <template #header>
+                <div class="table-header flex justify-between items-center">
+                    Categories
+                    <Link :href="route('categories.create')">
+                        <button
+                            type="button"
+                            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                            <!-- Heroicon name: solid/mail -->
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-5 w-5 mr-2"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+                                    clip-rule="evenodd"
+                                />
+                            </svg>
+                            Add Category
+                        </button>
+                    </Link>
+                    <!-- <Button label="Tambah" icon="pi pi-check" @click.prevent="toggleModal" /> -->
+                </div>
+            </template>
+            <!-- <Column field="vin" header="Vin"></Column> -->
+            <Column field header="Images">
+                <template #body="props">
+                    <img class="h-20" :src="'storage/' + props.data.image_path" />
+                </template>
+            </Column>
+            <Column field="name" header="Category"></Column>
+            <Column field="desc" header="Description" style="width:300px">
+                <template #body="props">{{ props.data.desc.slice(0, 100) }}...</template>
+            </Column>
+            <Column field="id" header="Actions">
+                <template #body="props">
+                    <div class="flex justify-end">
+                        <span class="p-buttonset">
+                            <Button label="Save" icon="pi pi-check" />
+                            <Link :href="route('categories.edit', props.data.id)">
+                                <Button label="Edit" icon="pi pi-times" />
+                            </Link>
                             <Button
+                                @click="confirmDelete(props.data.id)"
                                 label="Delete"
-                                @click="confirmDeleteData(slotProps.data.id)"
                                 icon="pi pi-trash"
+                                class="p-button-danger"
                             />
-                        </div>
-                    </template>
-                </Column>
+                        </span>
+                    </div>
+                </template>
+            </Column>
+        </DataTable>
 
-                <!-- <Dialog header="Category" v-model:visible="display" :breakpoints="{'960px': '75vw', '640px': '100vw'}" :style="{width: '50vw'}">
-                <Form v-if="mode.create" @closeModal="display = false" />
-                <form-edit v-if="mode.edit" :rowDataEdit="rowDataEdit" />
-                </Dialog>-->
-            </DataTable>
-        </Panel>
+        <!-- Modal -->
         <Dialog
-            header="Category"
-            v-model:visible="display"
-            :breakpoints="{ '960px': '75vw', '640px': '100vw' }"
+            :header="headerModal"
+            v-model:visible="hasModalOpen"
+            :breakpoints="{ '960px': '75vw' }"
             :style="{ width: '50vw' }"
         >
-            <Form v-if="mode.create" @closeModal="display = false" />
-            <form-edit v-if="mode.edit" :row-data-edit="rowDataEdit" />
-            <show v-if="mode.show" :category="rowDataShow" />
-            <!-- <div v-if="mode.show">
-                <p>{{ rowDataShow }}</p>
-            </div>-->
+            <FormCreate v-if="!mode.edit" @onCloseModal="closeModal" />
+            <!-- <FormEdit v-if="mode.edit" /> -->
         </Dialog>
-
         <ConfirmDialog></ConfirmDialog>
-
         <Toast />
     </div>
 </template>
 
 <script>
-import Layout from '@/Pages/Dashboard.vue'
 
+import { onMounted, computed, ref, defineAsyncComponent } from 'vue'
+
+// UI components
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
-import Card from 'primevue/card';
-import Button from 'primevue/button'
-import Panel from 'primevue/panel';
+import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
-import Image from 'primevue/image';
 import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
-import Toast from 'primevue/toast';
 
-import { Link } from '@inertiajs/inertia-vue3'
+// category component
+const FormCreate = defineAsyncComponent(() => import('@/Components/Category/Form.vue'))
+const FormEdit = defineAsyncComponent(() => import("@/Components/Category/FormEdit.vue"))
 
-import Form from '@/Components/Category/Form.vue'
-import FormEdit from '@/Components/Category/FormEdit.vue'
-import Show from '@/Components/Category/Show.vue'
-
-import { computed, onBeforeMount, reactive, ref } from 'vue';
-import axios from 'axios';
+// store
 import { useStore } from 'vuex'
+// base layout
+import Layout from '@/Pages/Dashboard.vue'
+import { Link } from '@inertiajs/inertia-vue3'
+import { useCategories } from '@/Composables/categories';
+
 export default {
     layout: Layout,
-    props: {
-
+    components: {
+        DataTable,
+        Column,
+        Button,
+        Dialog,
+        FormCreate,
+        FormEdit,
+        ConfirmDialog,
+        Toast,
+        Link
     },
-    components: { DataTable, Column, Card, Button, Panel, Dialog, Form, Image, ConfirmDialog, Toast, FormEdit, Show, Link },
-    setup(props) {
-
-        const store = useStore();
-
-
-        const rowDataEdit = ref({});
-        const rowDataShow = ref(null);
-
-        const mode = reactive({
-            create: false,
-            edit: false,
-            show: false
-        });
-        const display = ref(false);
-        const confirm = useConfirm();
+    setup() {
+        const store = useStore()
+        // const { categories, fetchCategories } = useCategories();
+        // console.log(categories.value)
+        const categories = computed(() => store.getters.categoryItems)
+        const confirm = useConfirm()
         const toast = useToast();
+        // modal state
+        const hasModalOpen = ref(false)
+
+        // crud mode
+        const mode = ref({
+            show: false,
+            edit: false
+        })
+
+        const headerModal = computed(() => {
+            if (mode.value.edit) {
+                return "Edit Category"
+            } else if (mode.value.show) {
+                return "Category Detail"
+            } else {
+                return "Create Category"
+            }
+        })
+
+        // methods
+        const fetchCategories = () => {
+            store.dispatch("getCategoryItems")
+        }
 
         const openModalCreate = () => {
-            display.value = !display.value;
-            mode.create = true;
+            toggleModal()
         }
 
-        const openModalShow = (id) => {
-            display.value = !display.value;
-            mode.show = true;
-            mode.create = false;
-            mode.edit = false;
+        const openModalEdit = async (id) => {
+            mode.value.edit = true;
+            try {
+                await store.dispatch("getCategoryById", id)
+                toggleModal()
+            } catch (error) {
 
-            store.dispatch("getCategoryById", id);
-            rowDataShow.value = computed(() => {
-                return store.getters.categoryItems;
-            })
+            }
+
         }
 
-        const openModalEdit = (id) => {
-            display.value = !display.value;
-            mode.edit = true;
-            store.dispatch("getCategoryById", id);
-            // store.dispatch('getCategoryById', id);
-            rowDataEdit.value = computed(() => store.getters.categoryItem)
-        }
-        const showImage = () => {
-            return "/storage/";
-        }
-
-        const confirmDeleteData = (id) => {
+        const confirmDelete = (id) => {
             confirm.require({
                 message: 'Do you want to delete this record?',
                 header: 'Delete Confirmation',
                 icon: 'pi pi-info-circle',
                 acceptClass: 'p-button-danger',
-                accept: () => {
-                    deleteCategory(id)
+                accept: async () => {
+                    await store.dispatch("destroyCategory", id);
+                    await store.dispatch("getCategoryItems")
+                    toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 3000 });
                 },
                 reject: () => {
                     toast.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
@@ -176,49 +180,37 @@ export default {
             });
         }
 
-        const fetchData = () => {
-            store.dispatch('getCategoryItems');
+        const toggleModal = () => {
+            hasModalOpen.value = !hasModalOpen.value;
+            // mode.value.edit = false;
         }
 
-        const deleteCategory = async (id) => {
-            try {
-                const response = await axios.delete(`api/categories/${id}`);
-                if (response) {
-                    fetchData()
-                    toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted', life: 3000 });
-                }
-            } catch (error) {
-                console.log(error)
-            }
+        const closeModal = () => {
+            hasModalOpen.value = false
+            mode.value.edit = false;
+        }
+
+        const readMoreDesc = (str) => {
+            // alert('test')
+            str.slice(0, str.length)
         }
 
 
-        // lifecycle
-        onBeforeMount(() => {
-            fetchData()
+        // lifecycle hooks
+        onMounted(() => {
+            fetchCategories()
         })
-
-
-
         return {
-            display,
-
-            rowData: computed(() => store.getters.categoryItems),
-            showImage,
+            categories,
+            readMoreDesc,
+            hasModalOpen,
+            toggleModal,
             mode,
-            openModalCreate,
-            openModalShow,
-            confirmDeleteData,
+            headerModal,
+            closeModal,
             openModalEdit,
-            rowDataEdit,
-            rowDataShow
+            confirmDelete
         }
-    },
+    }
 }
 </script>
-
-<style scoped>
-.p-float-label {
-    color: black;
-}
-</style>

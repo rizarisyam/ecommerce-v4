@@ -96,6 +96,7 @@ const actions = {
             );
 
             if (response.status === 200) {
+                // context.commit("")
                 context.commit("UPDATE_CUSTOMER", response.data);
                 context.commit("TOGLE_ISLOADING", false);
             }

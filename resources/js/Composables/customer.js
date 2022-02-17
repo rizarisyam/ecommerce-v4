@@ -19,6 +19,7 @@ export function useCustomer() {
     const getCustomerById = async (id) => {
         try {
             const response = await axios.get(route("api.customer.show", id));
+            console.log(response);
             customer.value = response.data.data;
         } catch (err) {
             errors.value = err.message;

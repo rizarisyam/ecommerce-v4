@@ -6,6 +6,7 @@ use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class CategoryController extends Controller
@@ -42,21 +43,19 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $files = $request->file('fileUpload');
+        // return $request->file('image');
+        $image = $request->file('image')->store('categories', 'public');
 
-        // return json_encode($files);
-        $path_push = [];
-
-        foreach($files as $file) {
-            $path = $file->store('fileUpload', 'public');
-            array_push($path_push, $path);
-        }
+        // foreach ($files as $file) {
+        //     $path = $file->store('fileUpload', 'public');
+        //     array_push($path_push, $path);
+        // }
         // $path = $files[0]->store('fileUpload');
 
-        $category = Category::create([
-            'name' => $request->name,
-            'desc' => $request->desc,
-            'image_path' => json_encode($path_push)
+        Category::create([
+            'name' => $request->input('name'),
+            'desc' => $request->input('desc'),
+            'image_path' => $image
         ]);
 
         return Redirect::route('categories.index');
@@ -103,29 +102,20 @@ class CategoryController extends Controller
     {
         $category = Category::findOrFail($id);
 
-        if($request->hasFile('fileUpload')) {
-            $files = $request->file('fileUpload');
-            $path_push = [];
-            foreach($files as $file) {
-                $path = $file->store('fileUpload', 'public');
-                array_push($path_push, $path);
+        $image = $category->image_path;
+        if ($request->file('image')) {
+            if (Storage::exists('public/' . $category->image_path)) {
+                Storage::delete('public/' . $category->image_path);
             }
-            $imagePath =  $path_push;
-        } else {
-            $imagePath = json_decode($category->image_path);
+            $image = $request->file('image')->store('categories', 'public');
         }
-
-        $data = $category->update([
-            'name' => $request->name,
-            'desc' => $request->desc,
-            'image_path' => json_encode($imagePath)
+        $category->update([
+            'name' => $request->input('name'),
+            'desc' => $request->input('desc'),
+            'image_path' => $image
         ]);
 
-        if($data) {
-            return Redirect::route('categories.index');
-        }
-
-
+        return Redirect::route('categories.index');
     }
 
     /**
@@ -134,8 +124,13 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Category $category)
+    public function destroy($id)
     {
-        //
+        $category = Category::findOrFail($id);
+        if (Storage::exists('public/' . $category->image_path)) {
+            Storage::delete('public/' . $category->image_path);
+        }
+        $category->delete();
+        return Redirect::route('categories.index');
     }
 }

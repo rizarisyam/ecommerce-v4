@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
+use GuzzleHttp\Handler\Proxy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ProductController extends Controller
@@ -26,7 +29,10 @@ class ProductController extends Controller
      */
     public function create()
     {
-        //
+        $categories = Category::all();
+        return Inertia::render('Product/Create', [
+            'categories' => $categories
+        ]);
     }
 
     /**
@@ -37,26 +43,27 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $files = $request->file('fileUpload');
-
-        $path_push = [];
-
-        foreach($files as $file) {
-            $path = $file->store('fileUpload', 'public');
-            array_push($path_push, $path);
+        if ($request->hasFile('image')) {
+            $images = array();
+            foreach ($request->file('image') as $row) {
+                $image = $row->store('products', 'public');
+                $images[] = $image;
+            }
+            // $image = $request->file('image')->store('products', 'public');
         }
 
         Product::create([
             'name' => $request->name,
             'desc' => $request->desc,
             'price' => $request->price,
+            'quantity' => $request->input('quantity'),
             'discount' => $request->discount,
             'SKU' => $request->SKU,
             'category_id' => $request->category_id,
-            'image_path' => json_encode($path_push)
+            'image_path' => json_encode($images)
         ]);
 
-        return Redirect::route('products.index');
+        return Redirect::route('products.index')->with('message', 'Data created successfully');
     }
 
     /**
@@ -76,9 +83,14 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function edit(Product $product)
+    public function edit($id)
     {
-        //
+        $product = Product::findOrFail($id);
+        $categories = Category::all();
+        return Inertia::render('Product/Edit', [
+            'product' => $product,
+            'categories' => $categories,
+        ]);
     }
 
     /**
@@ -88,9 +100,30 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, $id)
     {
-        //
+        $product = Product::findOrFail($id);
+        $image = $product->image_path;
+
+        if ($request->hasFile('image')) {
+            if (Storage::exists('storage/' . $product->image_path)) {
+                Storage::delete('public/' . $product->image_path);
+            }
+            $image = $request->file('image')->store('products', 'public');
+        }
+
+        $product->update([
+            'name' => $request->name,
+            'desc' => $request->desc,
+            'price' => $request->price,
+            'quantity' => $request->input('quantity'),
+            'discount' => $request->discount,
+            'SKU' => $request->SKU,
+            'category_id' => $request->category_id,
+            'image_path' => $image
+        ]);
+
+        return Redirect::route('products.index')->with('message', 'Data updated successfully');
     }
 
     /**
@@ -99,8 +132,12 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Product $product)
+    public function destroy($id)
     {
-        //
+        $product = Product::findOrFail($id);
+        Storage::delete('public/' . $product->image_path);
+        $product->delete();
+
+        return Redirect::route('products.index')->with('message', 'Data deleted successfully');
     }
 }

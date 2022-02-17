@@ -38,14 +38,15 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        return $request->all();
         // return $request->all();
         $files = $request->file('fileUpload');
 
         // return json_encode($files);
         $path_push = [];
 
-        if($request->hasFile('fileUpload')) {
-            foreach($files as $file) {
+        if ($request->hasFile('fileUpload')) {
+            foreach ($files as $file) {
                 $path = $file->store('fileUpload', 'public');
                 array_push($path_push, $path);
             }
@@ -95,24 +96,30 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // return $request->all();
         $files = $request->file('fileUpload');
-
+        $category = Category::findOrFail($id);
         // return json_encode($files);
         $path_push = [];
 
-        if($request->hasFile('fileUpload')) {
-            foreach($files as $file) {
+        if ($request->hasFile('fileUpload')) {
+            foreach ($files as $file) {
                 $path = $file->store('fileUpload', 'public');
                 array_push($path_push, $path);
             }
+        } else {
+            $path_push = $category->image_path;
         }
         // $path = $files[0]->store('fileUpload');
-        $category = Category::findOrFail($id);
+
         $category->update([
-            'name' => $request->name,
-            'desc' => $request->desc,
-            'image_path' => json_encode($path_push)
+            'name' => $request->input('name'),
+            'desc' => $request->input('desc'),
+            'image_path' => $path_push
         ]);
+
+        return Redirect::route('categories.index');
+        // return new CategoryResource($category);
     }
 
     /**
