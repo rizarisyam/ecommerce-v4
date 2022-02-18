@@ -132,6 +132,7 @@ jobs:
       - name: Composer install
         run: |
           composer install --no-dev --no-interaction --prefer-dist
+          php artisan migrate:fresh --seed
       - name: Create deployment artifact
         env:
           GITHUB_SHA: ${{ github.sha }}
